@@ -17,11 +17,19 @@ Read about it online.
 import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response
+#from flask import Flask, request, render_template, g, redirect, Response, session, abort
+from flask import Flask
+from flask import Flask, flash, redirect, render_template, request, session, abort,g
+from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user 
+import os
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
-
+app.secret_key = 'super secret key'
+app.config['SESSION_TYPE'] = 'filesystem'
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 
 #
 # The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
@@ -51,6 +59,16 @@ engine.execute("""CREATE TABLE IF NOT EXISTS test (
   name text
 );""")
 engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
+
+
+#type1=admin,type2=buyer,type3=seller
+class User(UserMixin):
+  def __init__(self, id):
+    self.type =type
+    self.id = id
+    self.username = username
+    self.password = password
+    self.money = money
 
 
 @app.before_request
@@ -107,17 +125,22 @@ def index():
   """
 
   # DEBUG: this is debugging code to see what request looks like
+  if not session.get('logged_in'):
+    return render_template('signIn.html')
+  else:
+    return render_template("mainPage.html")
   print request.args
 
 
   #
   # example of a database query
   #
-  cursor = g.conn.execute("SELECT name FROM test")
-  names = []
-  for result in cursor:
-    names.append(result['name'])  # can also be accessed using result[0]
-  cursor.close()
+
+  #cursor = g.conn.execute("SELECT name FROM test")
+  #names = []
+  #for result in cursor:
+  #  names.append(result['name'])  # can also be accessed using result[0]
+  #cursor.close()
 
   #
   # Flask uses Jinja templates, which is an extension to HTML where you can
@@ -145,14 +168,14 @@ def index():
   #     <div>{{n}}</div>
   #     {% endfor %}
   #
-  context = dict(data = names)
+  #context = dict(data = names)
 
 
   #
   # render_template looks in the templates/ folder for files.
   # for example, the below file reads template/index.html
   #
-  return render_template("index.html", **context)
+  #return render_template("index.html", **context)
 
 #
 # This is an example of a different path.  You can see it at:
@@ -162,6 +185,41 @@ def index():
 # Notice that the function name is another() rather than index()
 # The functions for each app.route need to have different names
 #
+@app.route('/login', methods=['POST'])
+def do_login():
+  username = request.form['username']
+  password = request.form['password']
+  session['username'] = request.form['username']
+  cursor = g.conn.execute("SELECT count(*) FROM Buyer Where name='"+username+"' And password='"+password+"'")
+  count =  cursor.scalar()
+
+  if count != 0:
+    cursor = g.conn.execute("SELECT * FROM Buyer Where name='"+username+"' And password='"+password+"'")
+    session['logged_in'] = True
+    cursor.close()
+  else :
+    flash('wrong password!')
+  return index()
+
+
+@app.route('/register',methods=['POST'])
+def register():
+  id = request.form['id']
+  username = request.form['username']
+  password = request.form['password']
+  type = request.form['type']
+  if type == "buyer":
+    cursor = g.conn.execute("INSERT INTO Buyer(bid, name, password, money) VALUES ('"+id+ "','" + username +"','" + password+"',10000)")
+  elif type == "seller":
+    cursor = g.conn.execute("INSERT INTO Seller(sid, name, password, money) VALUES ('"+id+ "','" + username +"','" + password+"',10000)")
+  cursor.close()
+
+  return index()
+
+@app.route('/signup')
+def signup():
+  return render_template("signup.html")
+
 @app.route('/another')
 def another():
   return render_template("another.html")
@@ -205,6 +263,4 @@ if __name__ == "__main__":
     HOST, PORT = host, port
     print "running on %s:%d" % (HOST, PORT)
     app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)
-
-
   run()
