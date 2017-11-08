@@ -1,10 +1,10 @@
 var itemCount = 0;
 
-function addMessage(){
-	var mes = $( "#mes" ).val();
-	if(mes != ""){
-		console.log("Mes+" + mes);
-		$("#messageBoard").append( "<div class='row message-bubble'><p class='text-muted'>A: </p><p>"+mes+"</p></div>" );
+function addMessage(msg){
+	//var mes = $( "#mes" ).val();
+	if(msg != ""){
+		console.log("Mes+" + msg);
+		$("#messageBoard").append( "<div class='row message-bubble'><p class='text-muted'>A: </p><p>"+msg+"</p></div>" );
 		$("#mes" ).val("")
 	}
 }
@@ -33,3 +33,20 @@ function addItem(){
   	$( "#item-price" ).val("");
   	itemCount++;
 }
+
+
+$(document).ready(function() {
+	var socket = io.connect('http://' + document.domain + ':' + "5000");
+	socket.on('connect', function() {
+		socket.send('User has connected!');
+	});
+	socket.on('message', function(msg) {
+		//$("#messages").append('<li>'+msg+'</li>');
+		addMessage(msg);
+		console.log('Received message');
+	});
+	$('#mesSend').on('click', function() {
+		socket.send($('#mes').val());
+		$('#mes').val('');
+	});
+});

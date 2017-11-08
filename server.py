@@ -21,16 +21,15 @@ from sqlalchemy.pool import NullPool
 from flask import Flask
 from flask import Flask, flash, redirect, render_template, request, session, abort,g
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user 
+from flask_socketio import SocketIO, send
 import os
+
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'filesystem'
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
-
+socketio = SocketIO(app)
 #
 # The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
 #
@@ -59,16 +58,6 @@ engine.execute("""CREATE TABLE IF NOT EXISTS test (
   name text
 );""")
 engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
-
-
-#type1=admin,type2=buyer,type3=seller
-class User(UserMixin):
-  def __init__(self, id):
-    self.type =type
-    self.id = id
-    self.username = username
-    self.password = password
-    self.money = money
 
 
 @app.before_request
@@ -241,7 +230,6 @@ def login():
 
 if __name__ == "__main__":
   import click
-
   @click.command()
   @click.option('--debug', is_flag=True)
   @click.option('--threaded', is_flag=True)
@@ -264,3 +252,7 @@ if __name__ == "__main__":
     print "running on %s:%d" % (HOST, PORT)
     app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)
   run()
+  #socketio.run(host="localhost", port=7000)
+
+
+
