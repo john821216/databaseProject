@@ -225,6 +225,8 @@ def do_login():
   id = request.form['id']
   password = request.form['password']
   type = request.form['type']
+  session['id'] = id
+
   if type == "buyer":
     cursor = g.conn.execute("SELECT count(*) FROM Buyer Where bid='"+id+"' And password='"+password+"'")
     count =  cursor.scalar()
@@ -263,18 +265,17 @@ def do_login():
 
 @app.route('/adminlogin', methods=['POST'])
 def ad_login():
-  username = request.form['username']
+  id = request.form['id']
   password = request.form['password']
-  session['username'] = request.form['username']
 
-  cursor = g.conn.execute("SELECT count(*) FROM Admin Where name='"+username+"' And password='"+password+"'")
+  cursor = g.conn.execute("SELECT count(*) FROM Admin ")
   count =  cursor.scalar()
 
   if count != 0:
-    cursor = g.conn.execute("SELECT * FROM Admin Where name='"+username+"' And password='"+password+"'")
+    cursor = g.conn.execute("SELECT * FROM Admin Where aid='"+ id +"' And password='"+password+"'")
     session['logged_in'] = True
     session['role'] = "admin"
-
+    session['username'] = cursor['name']
     cursor.close()
   else:
     flash('wrong password!')
@@ -310,6 +311,8 @@ def signin():
 @app.route('/enterRoom')
 def enterRoom():
   #insert people into chatroom
+  cursor = g.conn.execute()
+
   return ""
 
 @app.route('/leaveRoom')
@@ -326,10 +329,10 @@ def add():
   return redirect('/')
 
 
-@app.route('/login')
-def login():
-    abort(401)
-    this_is_never_executed()
+#@app.route('/login')
+#def login():
+#    abort(401)
+#    this_is_never_executed()
 
 
 if __name__ == "__main__":
