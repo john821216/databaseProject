@@ -54,11 +54,11 @@ engine = create_engine(DATABASEURI)
 # Example of running queries in your database
 # Note that this will probably not work if you already have a table named 'test' in your database, containing meaningful data. This is only an example showing you how to run queries in your database using SQLAlchemy.
 #
-engine.execute("""CREATE TABLE IF NOT EXISTS test (
-  id serial,
-  name text
-);""")
-engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
+#engine.execute("""CREATE TABLE IF NOT EXISTS test (
+#  id serial,
+#  name text
+#);""")
+#engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
 
 
 @app.before_request
@@ -123,6 +123,10 @@ def index():
       return buyerMain()
     elif role == 'seller':
       return sellerMain()
+    elif role == 'admin':
+      return adminMain()
+    else :
+      return render_template('signIn.html')
   print request.args
 
 
@@ -146,6 +150,14 @@ def sellerMain():
     numberOfAuctionRoom = g.conn.execute("SELECT count(*) FROM auctionRoom")
     newcursor = g.conn.execute("SELECT * FROM item WHERE arid>=1 And arid<='" + str(numberOfAuctionRoom.scalar())+"'").fetchall()
     return render_template("seller.html", username = session['username'], money = session['money'], items=newcursor, auctionrooms=cursor)
+
+@app.route('/admin')
+def adminMain():
+  if session.get('role') != "admin":
+    return index()
+  else:
+
+    return render_template("admin.html");
 
 @app.route('/biddingRoom/<int:id>')
 def biddingRoom(id):
@@ -228,10 +240,12 @@ def do_login():
       cursor.close()
     else:
       flash('wrong password!')
+
   elif type == "seller":
     cursor = g.conn.execute("SELECT count(*) FROM Seller Where sid='"+id+"' And password='"+password+"'")
     count =  cursor.scalar()
     if count != 0:
+
       cursor = g.conn.execute("SELECT * FROM Seller Where sid='"+id+"' And password='"+password+"'")
       session['logged_in'] = True
       session['role'] = "seller"
@@ -241,8 +255,29 @@ def do_login():
       for result in cursor:
         session['money'] = result['money']
       cursor.close()
+
     else:
       	flash('wrong password!')
+  return index()
+
+
+@app.route('/adminlogin', methods=['POST'])
+def ad_login():
+  username = request.form['username']
+  password = request.form['password']
+  session['username'] = request.form['username']
+
+  cursor = g.conn.execute("SELECT count(*) FROM Admin Where name='"+username+"' And password='"+password+"'")
+  count =  cursor.scalar()
+
+  if count != 0:
+    cursor = g.conn.execute("SELECT * FROM Admin Where name='"+username+"' And password='"+password+"'")
+    session['logged_in'] = True
+    session['role'] = "admin"
+
+    cursor.close()
+  else:
+    flash('wrong password!')
   return index()
 
 
@@ -264,9 +299,13 @@ def register():
 def signup():
   return render_template("signup.html")
 
-@app.route('/another')
-def another():
-  return render_template("another.html")
+@app.route('/adminSignIn')
+def signin():
+  return render_template("adminSignIn.html")
+
+#@app.route('/another')
+#def another():
+#  return render_template("another.html")
 
 @app.route('/enterRoom')
 def enterRoom():
