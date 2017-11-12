@@ -226,14 +226,14 @@ def do_login():
  	cursor = g.conn.execute("SELECT count(*) FROM Buyer Where bid='"+id+"' And password='"+password+"'")
   	count =  cursor.scalar()
 	#it is true buyer
-	if count != 0:
-	  	cursor = g.conn.execute("SELECT * FROM Buyer Where bid='"+id+"' And password='"+password+"'")
-	    session['logged_in'] = True
-	    session['role'] = "buyer"
-	    for result in cursor:
-	      session['money'] = result['money']
-
-	    cursor.close()
+  if count != 0:
+    cursor = g.conn.execute("SELECT * FROM Buyer Where bid='"+id+"' And password='"+password+"'")
+    session['logged_in'] = True
+    session['role'] = "buyer"
+    for result in cursor:
+      session['money'] = result['money']
+      cursor.close()
+  
   elif type == "seller":
     #maybe seller 
     cursor = g.conn.execute("SELECT count(*) FROM Seller Where sid='"+id+"' And password='"+password+"'")
@@ -290,6 +290,10 @@ def register():
 @app.route('/signup')
 def signup():
   return render_template("signup.html")
+
+@app.route('/adminSignIn')
+def signin():
+  return render_template("adminSignIn.html")
 
 #@app.route('/another')
 #def another():
