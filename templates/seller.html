@@ -13,7 +13,7 @@
   <body>
     <nav class="navbar navbar-light bg-faded" style="background-color: #e3f2fd;">
         <a class="navbar-brand" href="#">
-            Bidding Room
+            Bidding Room Hello <span id="username">{{ username }}</span> <span id="currentMoney">Currnet Money: {{money}}</span>
         </a>
     </nav>
     <div id="container" style="width:100%;">                                   
@@ -72,31 +72,31 @@
                 </div>
             </div>
 
+            {% for item in items %}
             <!-- room list -->
-            <div class="list-group" id="room-group">
-                <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 id="itemName1">Item Name</h5>
-                        <small id="itemTime1">Until 2017/11/6 12:00PM</small>
-                    </div>
-                    <p id="itemPrice1">Item Price</p>
-                </a>
-
-
-            </div>
+                <div class="list-group" id="room-group">
+                    <a href=/biddingRoom/{{loop.index}} class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 id=itemName{{loop.index}}>{{item.name}}</h5>
+                            <small id=itemTime{{loop.index}}>From {{auctionrooms[loop.index-1]. duration_from}} To {{auctionrooms[loop.index-1].duration_to}}</small>
+                        </div>
+                        <p id="itemPrice{{loop.index}}">Price: {{item.price}}</p>
+                        <small id=item{{loop.index-1}}Curpeople>Current People: 0/4</small>
+                    </a>
+                </div>
+            {% endfor %}
 
         </div>
            
         <div id="chatRoom" style="float:right; width:25%;"> 
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-primary" id="enterRoom">Enter </button>
+                <button type="button" class="btn btn-primary" id="leaveRoom">Leave</button>
+            </span>
             <div class="row">
                 <div class="panel panel-default">
                     <div class="panel-body">
-                        <div class="container" id ="messageBoard">
-                            <div class="row message-bubble">
-                                <p class="text-muted">A: </p>
-                                    <p>Test message</p>
-                            </div>
-                        </div>
+                        <div id="messageBoard"></div>
                         <div class="panel-footer">
                             <div class="input-group">
                                 <input type="text" id="mes" class="form-control">
@@ -117,7 +117,7 @@
       </div>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>    

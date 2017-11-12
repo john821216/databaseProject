@@ -1,10 +1,23 @@
 var itemCount = 0;
+var enter = false;
+document.getElementById("enterRoom").addEventListener("click", enterRoomFunc);
+document.getElementById("leaveRoom").addEventListener("click", leaveRoomFunc);
+function enterRoomFunc() {
+    enter = true;
+    alert("Enter chat room successfully");
+}
 
-function addMessage(msg){
+function leaveRoomFunc(){
+	enter = false;
+	alert("Leave chat room successfully");
+}
+
+function addMessage(name,msg){
 	//var mes = $( "#mes" ).val();
-	if(msg != ""){
+	console.log(enter);
+	if(msg != "" && enter == true){
 		console.log("Mes+" + msg);
-		$("#messageBoard").append( "<div class='row message-bubble'><p class='text-muted'>A: </p><p>"+msg+"</p></div>" );
+		$("#messageBoard").append( "<div class='row message-bubble'><p class='text-muted'>" +name+" : </p><p>"+msg+"</p></div>" );
 		$("#mes" ).val("")
 	}
 }
@@ -34,19 +47,51 @@ function addItem(){
   	itemCount++;
 }
 
+$("#enterRoom").click(function(){
+    $.ajax({
+	  type: 'get',
+	  url: "/enterRoom",
+	  data: "postedData",
+	  dataType: 'json',
+      success: function(response) {
+      },
+      error: function(xhr) {
+        //Do Something to handle error
+      }
+    });
+});
+
+$("#leaveRoom").click(function(){
+    $.ajax({
+	  type: 'get',
+	  url: "/leaveRoom",
+	  data: "postedData",
+	  dataType: 'json',
+      success: function(response) {
+      },
+      error: function(xhr) {
+        //Do Something to handle error
+      }
+    });
+});
+
 
 $(document).ready(function() {
 	var socket = io.connect('http://' + document.domain + ':' + "5000");
 	socket.on('connect', function() {
-		socket.send('User has connected!');
+		socket.send("Admin " + $('#username').text()+' has connected!');
 	});
 	socket.on('message', function(msg) {
-		//$("#messages").append('<li>'+msg+'</li>');
-		addMessage(msg);
+		var name = msg.split(" ")[0];
+		var mes="";
+		for(var i = 1 ; i < msg.split(" ").length ; i++){
+			mes += msg.split(" ")[i]+" ";
+		}
+		addMessage(name,mes);
 		console.log('Received message');
 	});
 	$('#mesSend').on('click', function() {
-		socket.send($('#mes').val());
+		socket.send($('#username').text()+" " +$('#mes').val());
 		$('#mes').val('');
 	});
 });

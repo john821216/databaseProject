@@ -22,6 +22,7 @@ from flask import Flask
 from flask import Flask, flash, redirect, render_template, request, session, abort,g
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user 
 from flask_socketio import SocketIO, send
+from flask_basic_roles import BasicRoleAuth
 import os
 
 
@@ -117,10 +118,39 @@ def index():
   if not session.get('logged_in'):
     return render_template('signIn.html')
   else:
-    return render_template("mainPage.html")
+    role = session.get('role')
+    if role == 'buyer':
+      return buyerMain()
+    elif role == 'seller':
+      return sellerMain()
   print request.args
 
 
+
+@app.route('/buyer')
+def buyerMain():
+  if session.get('role') != "buyer":
+    return index()
+  else:
+    cursor = g.conn.execute("SELECT * FROM auctionroom").fetchall()
+    numberOfAuctionRoom = g.conn.execute("SELECT count(*) FROM auctionRoom")
+    newcursor = g.conn.execute("SELECT * FROM item WHERE arid>=1 And arid<='" + str(numberOfAuctionRoom.scalar())+"'").fetchall()
+    return render_template("buyer.html", username = session['username'],  money = session['money'],items=newcursor, auctionrooms=cursor)
+
+@app.route('/seller')
+def sellerMain():
+  if session.get('role') != "seller":
+    return index()
+  else:
+    cursor = g.conn.execute("SELECT * FROM auctionroom").fetchall()
+    numberOfAuctionRoom = g.conn.execute("SELECT count(*) FROM auctionRoom")
+    newcursor = g.conn.execute("SELECT * FROM item WHERE arid>=1 And arid<='" + str(numberOfAuctionRoom.scalar())+"'").fetchall()
+    return render_template("seller.html", username = session['username'], money = session['money'], items=newcursor, auctionrooms=cursor)
+
+@app.route('/biddingRoom/<int:id>')
+def biddingRoom(id):
+  print id
+  return render_template("biddingRoom.html")
   #
   # example of a database query
   #
@@ -179,15 +209,33 @@ def do_login():
   username = request.form['username']
   password = request.form['password']
   session['username'] = request.form['username']
+
+  #maybe buyer
   cursor = g.conn.execute("SELECT count(*) FROM Buyer Where name='"+username+"' And password='"+password+"'")
   count =  cursor.scalar()
 
+  #it is true buyer
   if count != 0:
     cursor = g.conn.execute("SELECT * FROM Buyer Where name='"+username+"' And password='"+password+"'")
     session['logged_in'] = True
+    session['role'] = "buyer"
+    for result in cursor:
+      session['money'] = result['money']
+
     cursor.close()
   else :
-    flash('wrong password!')
+    #maybe seller 
+    cursor = g.conn.execute("SELECT count(*) FROM Seller Where name='"+username+"' And password='"+password+"'")
+    count =  cursor.scalar()
+
+    #it is true seller
+    if count != 0:
+      cursor = g.conn.execute("SELECT * FROM Seller Where name='"+username+"' And password='"+password+"'")
+      session['logged_in'] = True
+      session['role'] = "seller"
+      cursor.close()
+    else:
+      flash('wrong password!')
   return index()
 
 
@@ -212,6 +260,16 @@ def signup():
 @app.route('/another')
 def another():
   return render_template("another.html")
+
+@app.route('/enterRoom')
+def enterRoom():
+  #insert people into chatroom
+  return ""
+
+@app.route('/leaveRoom')
+def leaveRoom():
+  #leave people into chatroom
+  return ""
 
 
 # Example of adding new data to the database
@@ -252,7 +310,7 @@ if __name__ == "__main__":
     print "running on %s:%d" % (HOST, PORT)
     app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)
   run()
-  #socketio.run(host="localhost", port=7000)
+
 
 
 

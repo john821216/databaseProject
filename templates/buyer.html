@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Sign In</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <link id="bsdp-css" href="{{ url_for('static', filename='bootstrap-datepicker3.min.css')}}" rel="stylesheet">
+
+  </head>
+  <body>
+    <nav class="navbar navbar-light bg-faded" style="background-color: #e3f2fd;">
+        <a class="navbar-brand" href="#">
+            Bidding Room Hello <span id="username">{{ username }}</span> <span id="currentMoney">Currnet Money: {{money}}</span>
+        </a>
+    </nav>
+    <div id="container" style="width:100%;">                                   
+        <div id="bidding" style="float:left; width:65%;">
+            <div class="modal fade" id="addItem" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="addItemLabel">New Item</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <form>
+                            <div class="form-group">
+                              <label class="form-control-label">Name:</label>
+                              <input type="text" class="form-control" id="item-name">
+                            </div>
+                            <div class="form-group">
+                              <label class="form-control-label">Category:</label>
+                              <input type="text" class="form-control" id="item-category">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-control-label">Price:</label>
+                                <input type="text" class="form-control" id="item-price">
+                            </div>
+                            <div class="form-group">
+                                    <label class="form-control-label">Duration From:</label>
+                                    <div class="input-group date" data-provide="datepicker" id="item-du-from">
+                                            <input type="text" class="form-control">
+                                                <div class="input-group-addon">
+                                                    <span>Choose date</span>
+                                                </div>
+                                    </div>
+                            </div>
+                            <div class="form-group">
+                                    <label class="form-control-label">Duration To:</label>
+                                    <div class="input-group date" data-provide="datepicker" id="item-du-to">
+                                            <input type="text" class="form-control">
+                                                <div class="input-group-addon">
+                                                    <span>Choose date</span>
+                                                </div>
+                                    </div>
+                            </div>
+
+                           
+                          </form>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          <button type="button" class="btn btn-primary" id="addItemBtn" onclick="addItem()">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% for item in items %}
+            <!-- room list -->
+                <div class="list-group" id="room-group">
+                    <a href=/biddingRoom/{{loop.index}} class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 id=itemName{{loop.index}}>{{item.name}}</h5>
+                            <small id=itemTime{{loop.index}}>From {{auctionrooms[loop.index-1]. duration_from}} To {{auctionrooms[loop.index-1].duration_to}}</small>
+                        </div>
+                        <p id="itemPrice{{loop.index}}">Price: {{item.price}}</p>
+                        <small id=item{{loop.index}}Curpeople>Current People: 0/4</small>
+
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+           
+        <div id="chatRoom" style="float:right; width:25%;"> 
+            <span class="input-group-btn">
+                <button type="button" name="enterRoom" class="btn btn-primary" id="enterRoom">Enter </button>
+                <button type="button" name="leaveRoom" class="btn btn-primary" id="leaveRoom">Leave</button>
+            </span>
+            <div class="row">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div id="messageBoard"></div>
+                        <div class="panel-footer">
+                            <div class="input-group">
+                                <input type="text" id="mes" class="form-control">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" id="mesSend" type="button">Send</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>                   
+    </div>   
+
+
+    <div class="container">
+        
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>    
+    <script src="{{ url_for('static', filename='bootstrap-datepicker.min.js')}}"></script>    
+    <script src="{{ url_for('static', filename='mainpage.js') }}"></script>
+  </body>
+</html>
+
+
+
+
+
+
