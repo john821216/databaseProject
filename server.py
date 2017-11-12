@@ -206,36 +206,37 @@ def biddingRoom(id):
 #
 @app.route('/login', methods=['POST'])
 def do_login():
-  username = request.form['username']
+  id = request.form['id']
   password = request.form['password']
   session['username'] = request.form['username']
+  type = request.form['type']
+  if type == "buyer":
+ 	cursor = g.conn.execute("SELECT count(*) FROM Buyer Where bid='"+id+"' And password='"+password+"'")
+  	count =  cursor.scalar()
+	#it is true buyer
+	if count != 0:
+	  	cursor = g.conn.execute("SELECT * FROM Buyer Where bid='"+id+"' And password='"+password+"'")
+	    session['logged_in'] = True
+	    session['role'] = "buyer"
+	    for result in cursor:
+	      session['money'] = result['money']
 
-  #maybe buyer
-  cursor = g.conn.execute("SELECT count(*) FROM Buyer Where name='"+username+"' And password='"+password+"'")
-  count =  cursor.scalar()
-
-  #it is true buyer
-  if count != 0:
-    cursor = g.conn.execute("SELECT * FROM Buyer Where name='"+username+"' And password='"+password+"'")
-    session['logged_in'] = True
-    session['role'] = "buyer"
-    for result in cursor:
-      session['money'] = result['money']
-
-    cursor.close()
-  else :
+	    cursor.close()
+  elif type == "seller":
     #maybe seller 
-    cursor = g.conn.execute("SELECT count(*) FROM Seller Where name='"+username+"' And password='"+password+"'")
+    cursor = g.conn.execute("SELECT count(*) FROM Seller Where sid='"+id+"' And password='"+password+"'")
     count =  cursor.scalar()
 
     #it is true seller
     if count != 0:
-      cursor = g.conn.execute("SELECT * FROM Seller Where name='"+username+"' And password='"+password+"'")
-      session['logged_in'] = True
-      session['role'] = "seller"
-      cursor.close()
+     	cursor = g.conn.execute("SELECT * FROM Seller Where sid='"+id+"' And password='"+password+"'")
+      	session['logged_in'] = True
+      	session['role'] = "seller"
+      	for result in cursor:
+      		session['money'] = result['money']
+      	cursor.close()
     else:
-      flash('wrong password!')
+      	flash('wrong password!')
   return index()
 
 
