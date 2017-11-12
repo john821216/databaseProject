@@ -12,11 +12,13 @@
     <div class="text-center well"><b>Log In</b></div>
     <form id="login-form" action="/login" align="center" method="post" role="form" style="display: block;">
       <div class="form-group" align="center">
-        <input type="text" align="center" name="username" id="username" tabindex="1" class="form-control" placeholder="Username" style="width:355px; margin-top:25px;">
+        <input type="text" align="center" name="id" id="id" tabindex="1" class="form-control" placeholder="id" style="width:355px; margin-top:25px;">
       </div>
       <div class="form-group" align="center">
         <input type="password" align="center" name="password" id="password" tabindex="2" class="form-control" placeholder="Password" style="width:355px;">
       </div>
+        <input type="radio" name="type" value="buyer"> Buyer
+        <input type="radio" name="type" value="seller" checked> Seller<br>
       <input class="btn btn-primary" align="center" id="submitBtn" type="submit" value="Submit" style="width:355px;">
     </form>
     <!-- Optional JavaScript -->
