@@ -311,22 +311,61 @@ def signin():
 @app.route('/enterRoom')
 def enterRoom():
   #insert people into chatroom
-  cursor = g.conn.execute()
+  role = session.get('role')
+  id = session.get('id')
+
+  if role == "buyer":
+    cursor = g.conn.execute("SELECT count(*) FROM participatecb WHERE bid = "+ id)
+    if cursor.scalar() == 0 :
+      print "Buyer add to chat room", id
+      g.conn.execute("INSERT INTO participatecb VALUES (1, " + id + ")")
+    else :
+      print "Buyer already in chat room", id
+    cursor.close()
+
+  elif role == "seller":
+    cursor = g.conn.execute("SELECT count(*) FROM participatecs WHERE sid = " + id)
+    if cursor.scalar() == 0 :
+      print "Buyer add to chat room", id
+      g.conn.execute("INSERT INTO participatecs VALUES (1, "+ id + ")")
+    else :
+      print "Seller already in chat room", id
+    cursor.close()
 
   return ""
 
 @app.route('/leaveRoom')
 def leaveRoom():
   #leave people into chatroom
+  role = session.get('role')
+  id = session.get('id')
+  if role == "buyer":
+    cursor = g.conn.execute("SELECT count(*) FROM participatecb WHERE bid = " + id)
+    if cursor.scalar() != 0 :
+      g.conn.execute("DELETE FROM participatecb WHERE bid = " + id)
+      print "Buyer leave chat room", id
+    else :
+      print "Buyer not in chat room", id
+    cursor.close()
+
+  elif role == "seller":
+    cursor = g.conn.execute("SELECT count(*) FROM participatecs WHERE sid = " + id)
+    if cursor.scalar() != 0 :
+      g.conn.execute("DELETE FROM participatecs WHERE sid = " + id)
+      print "Seller leave chat room", id
+    else :
+      print "Seller not in chat room", id
+    cursor.close()
+
   return ""
 
 
 # Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add():
-  name = request.form['name']
-  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
-  return redirect('/')
+#@app.route('/add', methods=['POST'])
+#def add():
+#  name = request.form['name']
+#  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
+#  return redirect('/')
 
 
 #@app.route('/login')
