@@ -17,12 +17,14 @@
         </a>
     </nav>
     <div class="container">
-      <p>Name: </p>
-      <p>Category: </p>
-      <p>Current Price: </p>
-      <p>Duration From: </p>
-      <p>Duration To: </p>
-      <p>Current People: </p>
+      {% for item in items %}
+        <p>Name : {{item.name}}</p>
+        <p>Category: {{item.category}}</p>
+        <p>Current Price: {{item.current_bidding}}</p>
+        <p>Duration From: {{auctionrooms[0].duration_from}}</p>
+        <p>Duration To: {{auctionrooms[0].duration_to}}</p>
+        <p id="currentPP">Current People: </p>
+      {% endfor %}
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addBid">I Want This</button>
     </div>
 
@@ -51,12 +53,6 @@
             </div>
         </div>
     </div>
-
-
-
-
-
-
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>

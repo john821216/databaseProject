@@ -12,10 +12,10 @@ function leaveRoomFunc(){
 	alert("Leave chat room successfully");
 }
 
-function addMessage(name,msg){
+function addMessage(tag,name,msg){
 	//var mes = $( "#mes" ).val();
 	console.log(enter);
-	if(msg != "" && enter == true){
+	if(tag == "<msg>" && msg != "" && enter == true){
 		console.log("Mes+" + msg);
 		$("#messageBoard").append( "<div class='row message-bubble'><p class='text-muted'>" +name+" : </p><p>"+msg+"</p></div>" );
 		$("#mes" ).val("")
@@ -79,19 +79,20 @@ $("#leaveRoom").click(function(){
 $(document).ready(function() {
 	var socket = io.connect('http://' + document.domain + ':' + "5000");
 	socket.on('connect', function() {
-		socket.send("Admin " + $('#username').text()+' has connected!');
+		socket.send("<msg> Admin " + $('#username').text()+' has connected!');
 	});
 	socket.on('message', function(msg) {
-		var name = msg.split(" ")[0];
+		var tag = msg.split(" ")[0]
+		var name = msg.split(" ")[1];
 		var mes="";
-		for(var i = 1 ; i < msg.split(" ").length ; i++){
+		for(var i = 2 ; i < msg.split(" ").length ; i++){
 			mes += msg.split(" ")[i]+" ";
 		}
-		addMessage(name,mes);
+		addMessage(tag,name,mes);
 		console.log('Received message');
 	});
 	$('#mesSend').on('click', function() {
-		socket.send($('#username').text()+" " +$('#mes').val());
+		socket.send("<msg>" + " " + $('#username').text()+" " +$('#mes').val());
 		$('#mes').val('');
 	});
 });

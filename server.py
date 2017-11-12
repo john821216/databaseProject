@@ -149,8 +149,12 @@ def sellerMain():
 
 @app.route('/biddingRoom/<int:id>')
 def biddingRoom(id):
-  print id
-  return render_template("biddingRoom.html")
+	#print id
+  #insert table people
+	cursor = g.conn.execute("SELECT * FROM auctionroom WHERE arid='"+str(id)+"'").fetchall()
+	newcursor = g.conn.execute("SELECT * FROM item WHERE arid='"+str(id)+"'").fetchall()
+	return render_template("biddingRoom.html", username = session['username'], money = session['money'],items=newcursor, auctionrooms=cursor)
+
   #
   # example of a database query
   #
@@ -208,33 +212,35 @@ def biddingRoom(id):
 def do_login():
   id = request.form['id']
   password = request.form['password']
-  session['username'] = request.form['username']
   type = request.form['type']
   if type == "buyer":
- 	cursor = g.conn.execute("SELECT count(*) FROM Buyer Where bid='"+id+"' And password='"+password+"'")
-  	count =  cursor.scalar()
-	#it is true buyer
-	if count != 0:
-	  	cursor = g.conn.execute("SELECT * FROM Buyer Where bid='"+id+"' And password='"+password+"'")
-	    session['logged_in'] = True
-	    session['role'] = "buyer"
-	    for result in cursor:
-	      session['money'] = result['money']
-
-	    cursor.close()
+    cursor = g.conn.execute("SELECT count(*) FROM Buyer Where bid='"+id+"' And password='"+password+"'")
+    count =  cursor.scalar()
+    if count != 0:
+      cursor = g.conn.execute("SELECT * FROM Buyer Where bid='"+id+"' And password='"+password+"'")
+      session['logged_in'] = True
+      session['role'] = "buyer"
+      nameCursor = g.conn.execute("SELECT name FROM Buyer Where bid='"+id+"' And password='"+password+"'")    
+      for name in nameCursor:
+        session['username'] = name['name']
+      for result in cursor:
+        session['money'] = result['money']
+      cursor.close()
+    else:
+      flash('wrong password!')
   elif type == "seller":
-    #maybe seller 
     cursor = g.conn.execute("SELECT count(*) FROM Seller Where sid='"+id+"' And password='"+password+"'")
     count =  cursor.scalar()
-
-    #it is true seller
     if count != 0:
-     	cursor = g.conn.execute("SELECT * FROM Seller Where sid='"+id+"' And password='"+password+"'")
-      	session['logged_in'] = True
-      	session['role'] = "seller"
-      	for result in cursor:
-      		session['money'] = result['money']
-      	cursor.close()
+      cursor = g.conn.execute("SELECT * FROM Seller Where sid='"+id+"' And password='"+password+"'")
+      session['logged_in'] = True
+      session['role'] = "seller"
+      nameCursor = g.conn.execute("SELECT name FROM Seller Where sid='"+id+"' And password='"+password+"'")
+      for name in nameCursor:
+        session['username'] = name['name']
+      for result in cursor:
+        session['money'] = result['money']
+      cursor.close()
     else:
       	flash('wrong password!')
   return index()

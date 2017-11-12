@@ -6,19 +6,59 @@ $('#bid').on('show.bs.modal', function (event) {
   modal.find('.modal-title').text('New Item');
   //modal.find('.modal-body input').val(recipient);
 })
-
-function addItem(){
-	var itemName = $( "#item-name" ).val();
-	var itemCategory = $( "#item-category" ).val();
-	var itemPrice = $( "#item-price" ).val();
-	var durationFrom = $("#item-du-from").datepicker('getDate').toString().split(" ")[1] +" "+ $("#item-du-from").datepicker('getDate').toString().split(" ")[2] +" "+  $("#item-du-from").datepicker('getDate').toString().split(" ")[3]
-	var durationTo = $("#item-du-to").datepicker('getDate').toString().split(" ")[1] +" "+ $("#item-du-from").datepicker('getDate').toString().split(" ")[2] +" "+  $("#item-du-to").datepicker('getDate').toString().split(" ")[3]
-	console.log(itemName+" "+ itemCategory+" "+ itemPrice +" " + durationFrom +" " + durationTo);
-	//console.log($('#item-du-to').datepicker('getDate'));
-	$("#room-group").append("<a href='#'' class='list-group-item list-group-item-action flex-column align-items-start'><div class='d-flex w-100 justify-content-between'><h5 id="+'itemName'+itemCount+">"+itemName+"</h5><small id="+'itemTime'+ itemCount+"> From: " + durationFrom + " To: " + durationTo+"</small>"+"</div><p id=" + 'itemPrice' +itemCount +">"+itemPrice+"</p></a>");                           
-	$('#addItem').modal('hide')
-	$( "#item-name" ).val("");
- 	$( "#item-category" ).val("");
-  	$( "#item-price" ).val("");
-  	itemCount++;
+enter=false;
+var pp=[];
+function addMessage(tag,name,msg){
+	console.log(tag+ " " + name +" " + msg);
+	if(tag == "<msg>" && msg != "" && enter == true){
+		console.log("Mes+" + msg);
+		$("#messageBoard").append( "<div class='row message-bubble'><p class='text-muted'>" +name+" : </p><p>"+msg+"</p></div>" );
+		$("#mes" ).val("")
+	} else if(tag=="<bid>"){
+		var otherRoom = msg.split(" ")[0];
+		var user = name;
+		var myRoom = document.URL.split("biddingRoom/")[1];
+		if(myRoom== otherRoom){
+			pp.push(user);
+			var users=""
+			for(var i = 0 ; i < pp.length ; i++){
+				if(i==0){
+					users = pp[i];
+				} else{
+					users += " " + pp[i];
+				}
+			}
+			var socket = io.connect('http://' + document.domain + ':' + "5000");
+			socket.on('connect', function() {
+				socket.send("<bidUpdate> " + myRoom+" " + users);
+			});
+		}
+	} else if(tag=="<bidUpdate>"){
+		var otherRoom = name;
+		$("#currentPP").text("Current People: ");
+		pp=[];
+		for(var i =0 ; i < msg.split(" ").length ; i++){
+			$("#currentPP").append(msg.split(" ")[i] +" ");
+			pp.push(msg.split(" ")[i]);
+		}	
+		console.log(pp);
+	}
 }
+
+$(document).ready(function() {
+	var socket = io.connect('http://' + document.domain + ':' + "5000");
+	var currentRoom = document.URL.split("biddingRoom/")[1];
+	socket.on('connect', function() {
+		socket.send("<bid> " + $('#username').text()+" " + currentRoom);
+	});
+	socket.on('message', function(msg) {
+		var tag = msg.split(" ")[0]
+		var name = msg.split(" ")[1];
+		var mes="";
+		for(var i = 2 ; i < msg.split(" ").length ; i++){
+			mes += msg.split(" ")[i]+" ";
+		}
+		addMessage(tag,name,mes);
+		console.log('Received message');
+	});
+});
