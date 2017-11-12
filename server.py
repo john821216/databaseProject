@@ -241,21 +241,13 @@ def do_login():
 
     #it is true seller
     if count != 0:
-<<<<<<< HEAD
       cursor = g.conn.execute("SELECT * FROM Seller Where name='"+username+"' And password='"+password+"'")
       session['logged_in'] = True
       session['role'] = "seller"
       for result in cursor:
         session['money'] = result['money']
       cursor.close()
-=======
-     	cursor = g.conn.execute("SELECT * FROM Seller Where sid='"+id+"' And password='"+password+"'")
-      	session['logged_in'] = True
-      	session['role'] = "seller"
-      	for result in cursor:
-      		session['money'] = result['money']
-      	cursor.close()
->>>>>>> 455b9f76aed9f217f1f90649af0547d4431f508b
+
     else:
       	flash('wrong password!')
   return index()
