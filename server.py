@@ -24,6 +24,9 @@ from flask_login import LoginManager, UserMixin, login_required, login_user, log
 from flask_socketio import SocketIO, send
 from flask_basic_roles import BasicRoleAuth
 
+#define easier function call for date time
+import datetime
+now = datetime.datetime.now()
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -253,7 +256,7 @@ def do_login():
       cursor = g.conn.execute("SELECT * FROM Seller Where sid='"+id+"' And password='"+password+"'")
       session['logged_in'] = True
       session['role'] = "seller"
-      session['id'] = "seller"
+      session['id'] = id
       nameCursor = g.conn.execute("SELECT name FROM Seller Where sid='"+id+"' And password='"+password+"'")
       for name in nameCursor:
         session['username'] = name['name']
@@ -266,16 +269,26 @@ def do_login():
   return index()
 
 
-@app.route('/add', methods=['POST'])
+@app.route('/additem', methods=['POST'])
 def addItem():
-	itemName = request.form['item-name']
-	itemCategory = request.form['item-category']
-	itemPrice = request.form['item-price']
-	durationFrom = request.form['item-du-from']
-	durationTo = request.form['item-du-to']
-	print itemName + " " + itemCategory +" " + itemPrice +" " + durationFrom +" " + durationTo
-	##insert into item table and auctionroom table
-	return index()
+  sid = session.get('id')
+  itemName = request.form['item-name']
+  itemCategory = request.form['item-category']
+  itemPrice = request.form['item-price']
+  durationFrom = request.form['item-du-from']
+  durationTo = request.form['item-du-to']
+
+  #inputformat 'm(m)/d(d)/yyyy hhmm00'
+  date = str(now.month) + "/" + str(now.day) + "/" + str(now.year) + " "
+  #Use newiid for new iid number and new arid number
+  newiid = g.conn.execute("SELECT MAX(iid) FROM item").scalar() + 1
+
+  aid = g.conn.execute("SELECT aid FROM auctionroom WHERE arid = " + str(newiid % 10)).scalar()
+  ##create auction room add to item table
+  g.conn.execute("INSERT INTO auctionroom VALUES (" + str(newiid) + ",'" + itemCategory + "', '" + date + durationFrom + "00', '" + date + durationTo + "00', " + str(aid) + ")")
+  g.conn.execute("INSERT INTO item VALUES (" + str(newiid) + ",'" + sid + "','" + itemName + "','" + itemCategory + "',"  + itemPrice + "," + itemPrice + "," + str(newiid) + ")")
+  print "Auction Room", newiid, "created item", itemName, "added"
+  return index()
 
 @app.route('/adminlogin', methods=['POST'])
 def ad_login():
