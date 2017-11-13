@@ -160,8 +160,8 @@ def adminMain():
   else:
     aid = session.get('id')
     name = session.get('username')
-    cursor = g.conn.execute("SELECT * FROM setting WHERE aid = "+ aid).fetchall();
-    cursorr = g.conn.execute("SELECT * FROM auctionroom A, setting S, applysetting AST WHERE AST.sid = S.sid AND A.arid = AST.arid AND A.aid = " + aid).fetchall()
+    cursor = g.conn.execute("SELECT * FROM setting WHERE aid = " + aid  + " ORDER BY sid").fetchall();
+    cursorr = g.conn.execute("SELECT * FROM auctionroom A, setting S, applysetting AST WHERE AST.sid = S.sid AND A.arid = AST.arid AND A.aid = " + aid + " ORDER BY A.arid").fetchall()
     return render_template("admin.html", username = name, mysetting = cursor, myrooms = cursorr) ;
 
 @app.route('/biddingRoom/<int:id>')
@@ -286,9 +286,48 @@ def addItem():
   aid = g.conn.execute("SELECT aid FROM auctionroom WHERE arid = " + str(newiid % 10)).scalar()
   ##create auction room add to item table
   g.conn.execute("INSERT INTO auctionroom VALUES (" + str(newiid) + ",'" + itemCategory + "', '" + date + durationFrom + "00', '" + date + durationTo + "00', " + str(aid) + ")")
-  g.conn.execute("INSERT INTO item VALUES (" + str(newiid) + ",'" + sid + "','" + itemName + "','" + itemCategory + "',"  + itemPrice + "," + itemPrice + "," + str(newiid) + ")")
+  g.conn.execute("INSERT INTO item VALUES (" + str(newiid) + ",'" + sid + "','" + itemName + "','" + itemCategory + "',"  + itemPrice + "," + itemPrice + "," + str(newiid) + ", 0 )")
   print "Auction Room", newiid, "created item", itemName, "added"
   return index()
+
+@app.route('/addset', methods=['POST'])
+def addSet():
+  aid = session.get('id')
+  people = request.form['mppl']
+  money = request.form['mmoney']
+
+  #Use newiid for new iid number and new arid number
+  newsid = g.conn.execute("SELECT MAX(sid) FROM setting").scalar() + 1
+
+  
+  ##create auction room add to item table
+  g.conn.execute("INSERT INTO setting VALUES (" + str(newsid) + "," + aid + "," + people + "," + money + ")")
+  print "New Setting", newsid, "created"
+  return index()
+
+@app.route('/modset', methods=['POST'])
+def updateSet():
+  aid = session.get('id')
+  sid = request.form['set_id']
+  people = request.form['mppl']
+  money = request.form['mmoney']
+
+  
+  ##create auction room add to item table
+  g.conn.execute("UPDATE setting SET max_people = " + people + ", max_money = " + money + " WHERE sid = " + sid + " AND aid = " + aid)
+  print "condition check setting alter"
+  return index()
+
+@app.route('/delset', methods=['POST'])
+def deleteSet():
+  aid = session.get('id')
+  sid = request.form['set_id']
+  
+  ##create auction room add to item table
+  g.conn.execute("DELETE FROM setting WHERE sid = " + sid + " AND aid = " + aid)
+  print "condition check setting delete"
+  return index()
+
 
 @app.route('/adminlogin', methods=['POST'])
 def ad_login():

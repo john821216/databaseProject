@@ -20,7 +20,7 @@
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <div class="text-center well" style="text-align:center;" ><b>Setting id</b> </div>
+                    <div class="text-center well" style="text-align:center;" ><b>Setting ID</b> </div>
                 </div>
                 <div class="col">
                     <div class="text-center well" style="text-align:center;" ><b>Max people</b> </div>
@@ -44,20 +44,111 @@
             
             {% endfor %}
         </div>
-        <div> 
-            <button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#addItem" >Add Setting</button>  
-            <button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#addItem" >Modify Setting</button>  
+        <div>  
+            <form id="addSetForm" action="/addset" method="post" role="form">
+                <button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#addSet">  Add Setting  </button>
+                <div class="modal fade" id="addSet" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="addItemLabel">New Setting</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <form>
+                                <div class="form-group">
+                                  <label class="form-control-label">Max People:</label>
+                                  <input type="text" class="form-control" name ="mppl" id="mppl">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-control-label">Max Money:</label>
+                                  <input type="text" class="form-control" name ="mmoney" id="mmoney">
+                                </div>
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                              <button class="btn btn-primary" id="addItemBtn"  type="submit" value="Submit">Add</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <form id="modSetForm" action="/modset" method="post" role="form">
+                <button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#modSet" >Modify Setting</button>
+                <div class="modal fade" id="modSet" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="addItemLabel">Modify Setting</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <form>
+                                <div class="form-group">
+                                  <label class="form-control-label">Setting Rule ID:</label>
+                                  <input type="text" class="form-control" name ="set_id" id="set_id">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-control-label">New Max People:</label>
+                                  <input type="text" class="form-control" name ="mppl" id="mppl">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-control-label">New Max Money:</label>
+                                  <input type="text" class="form-control" name ="mmoney" id="mmoney">
+                                </div>      
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                              <button class="btn btn-primary" id="addItemBtn"  type="submit" value="Submit">Add</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form> 
+            <form id="delSetForm" action="/delset" method="post" role="form">
+                <button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#delSet">Delete Setting</button>
+                <div class="modal fade" id="delSet" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="addItemLabel">Delete Setting</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <form>
+                                <div class="form-group">
+                                  <label class="form-control-label">Setting ID:</label>
+                                  <input type="text" class="form-control" name ="set_id" id="set_id">
+                                </div>    
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                              <button class="btn btn-primary" id="addItemBtn"  type="submit" value="Submit">Add</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form> 
         </div>
     </div>
     <div id="container" style="width:100%;"> 
-        <div class="text-left well" ><b> My rooms & current setting</b> </div>
+        <div class="text-left well" ><b> My Rooms & Current Setting</b> </div>
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <div class="text-center well" style="text-align:center;" ><b>Room id</b> </div>
+                    <div class="text-center well" style="text-align:center;" ><b>Room ID</b> </div>
                 </div>
                 <div class="col">
-                    <div class="text-center well" style="text-align:center;" ><b>Setting id</b> </div>
+                    <div class="text-center well" style="text-align:center;" ><b>Setting ID</b> </div>
                 </div>
                 <div class="col">
                     <div class="text-center well" style="text-align:center;" ><b>Max people</b> </div>
@@ -75,7 +166,7 @@
             {% for room in myrooms %}
             <div class="row">
                 <div class="col">
-                    <div class="text-center well" style="text-align:center;" ><b>{{room.aid}}</b> </div>
+                    <div class="text-center well" style="text-align:center;" ><b>{{room.arid}}</b> </div>
                 </div>
                 <div class="col">
                     <div class="text-center well" style="text-align:center;" ><b>{{room.sid}}</b> </div>
@@ -97,10 +188,50 @@
         </div>
         <div> 
             <!--<button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#addItem" >Add Room</button>  -->
-            <button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#addItem" >Change Setting</button>  
+            <form id="changeSetForm" action="/chageSet" method="post" role="form">
+                <button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#changeSet" >Change Setting</button>
+                <div class="modal fade" id="changeSet" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="addItemLabel">Change Room Setting</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <form>
+                                <div class="form-group">
+                                  <label class="form-control-label">Target Room ID:</label>
+                                  <input type="text" class="form-control" name ="room_id" id="room_id">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-control-label">Apply Setting ID:</label>
+                                  <input type="text" class="form-control" name ="set_id" id="set_id">
+                                </div>     
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                              <button class="btn btn-primary" id="addItemBtn"  type="submit" value="Submit">Add</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
 
     </div>
         
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>    
+    </script>
+    <script src="{{ url_for('static', filename='mainpage.js') }}"></script>
+    <!--<script src="../static/mainpage.js"></script>-->
     </body>
 </html>
