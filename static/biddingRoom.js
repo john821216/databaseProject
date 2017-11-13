@@ -13,9 +13,10 @@ function leave(){
 	var currentRoom = document.URL.split("biddingRoom/")[1];
 	socket.send("<mainPagePP> " + (numberOfPeople-1)+" " + currentRoom);
 	socket.send("<bidLeave> " + $('#id').text()+" " + currentRoom);
-	//send the length of room
-	console.log("16");
-	window.location = "http://" + document.URL.split("http://")[1].split("/")[0]
+	var millisecondsToWait = 1500;
+	setTimeout(function() {
+		window.location = "http://" + document.URL.split("http://")[1].split("/")[0]
+	}, millisecondsToWait);
 }
 
 enter=false;

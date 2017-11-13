@@ -35,6 +35,7 @@ def handleMessage(msg):
 			msg = msg + dict[roomNumber][i] +" "
 		send(msg, broadcast=True)
 
+
 	elif msg.split(" ")[0] == "<bidMoney>":
 		#insert into database
 		send(msg, broadcast=True)
@@ -42,7 +43,7 @@ def handleMessage(msg):
 		send(msg, broadcast=True)
 	else:
 		send(msg, broadcast=True)
-		
+
 
 
 if __name__ == '__main__':
