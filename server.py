@@ -156,8 +156,11 @@ def adminMain():
   if session.get('role') != "admin":
     return index()
   else:
-
-    return render_template("admin.html");
+    aid = session.get('id')
+    name = session.get('username')
+    cursor = g.conn.execute("SELECT * FROM setting WHERE aid = "+ aid).fetchall();
+    cursorr = g.conn.execute("SELECT * FROM auctionroom A, setting S, applysetting AST WHERE AST.sid = S.sid AND A.arid = AST.arid AND A.aid = " + aid).fetchall()
+    return render_template("admin.html", username = name, mysetting = cursor, myrooms = cursorr) ;
 
 @app.route('/biddingRoom/<int:id>')
 def biddingRoom(id):
@@ -226,6 +229,7 @@ def do_login():
   password = request.form['password']
   type = request.form['type']
   session['id'] = id
+
   if type == "buyer":
     cursor = g.conn.execute("SELECT count(*) FROM Buyer Where bid='"+id+"' And password='"+password+"'")
     count =  cursor.scalar()
@@ -264,18 +268,18 @@ def do_login():
 
 @app.route('/adminlogin', methods=['POST'])
 def ad_login():
-  username = request.form['username']
+  id = request.form['id']
   password = request.form['password']
-  session['username'] = request.form['username']
+  session['id'] = id
 
-  cursor = g.conn.execute("SELECT count(*) FROM Admin Where name='"+username+"' And password='"+password+"'")
+  cursor = g.conn.execute("SELECT count(*) FROM Admin WHERE aid= " + id + " AND password= \'" + password + "\'")
   count =  cursor.scalar()
-
-  if count != 0:
-    cursor = g.conn.execute("SELECT * FROM Admin Where name='"+username+"' And password='"+password+"'")
+  
+  if count == 1:
+    cursor = g.conn.execute("SELECT name FROM Admin WHERE aid= " + id + " AND password= \'" + password + "\'")
     session['logged_in'] = True
     session['role'] = "admin"
-
+    session['username'] = cursor.fetchone()['name']
     cursor.close()
   else:
     flash('wrong password!')
@@ -311,26 +315,67 @@ def signin():
 @app.route('/enterRoom')
 def enterRoom():
   #insert people into chatroom
+  role = session.get('role')
+  id = session.get('id')
+
+  if role == "buyer":
+    cursor = g.conn.execute("SELECT count(*) FROM participatecb WHERE bid = "+ id)
+    if cursor.scalar() == 0 :
+      print "Buyer add to chat room", id
+      g.conn.execute("INSERT INTO participatecb VALUES (1, " + id + ")")
+    else :
+      print "Buyer already in chat room", id
+    cursor.close()
+
+  elif role == "seller":
+    cursor = g.conn.execute("SELECT count(*) FROM participatecs WHERE sid = " + id)
+    if cursor.scalar() == 0 :
+      print "Buyer add to chat room", id
+      g.conn.execute("INSERT INTO participatecs VALUES (1, "+ id + ")")
+    else :
+      print "Seller already in chat room", id
+    cursor.close()
+
   return ""
 
 @app.route('/leaveRoom')
 def leaveRoom():
   #leave people into chatroom
+  role = session.get('role')
+  id = session.get('id')
+  if role == "buyer":
+    cursor = g.conn.execute("SELECT count(*) FROM participatecb WHERE bid = " + id)
+    if cursor.scalar() != 0 :
+      g.conn.execute("DELETE FROM participatecb WHERE bid = " + id)
+      print "Buyer leave chat room", id
+    else :
+      print "Buyer not in chat room", id
+    cursor.close()
+
+  elif role == "seller":
+    cursor = g.conn.execute("SELECT count(*) FROM participatecs WHERE sid = " + id)
+    if cursor.scalar() != 0 :
+      g.conn.execute("DELETE FROM participatecs WHERE sid = " + id)
+      print "Seller leave chat room", id
+    else :
+      print "Seller not in chat room", id
+    cursor.close()
+
   return ""
 
 
 # Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add():
-  name = request.form['name']
-  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
-  return redirect('/')
+#@app.route('/add', methods=['POST'])
+#def add():
+#  name = request.form['name']
+#  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
+#  return redirect('/')
 
 
-@app.route('/login')
-def login():
-    abort(401)
-    this_is_never_executed()
+#@app.route('/login')
+#def login():
+#    abort(401)
+#    this_is_never_executed()
 
 
 if __name__ == "__main__":
