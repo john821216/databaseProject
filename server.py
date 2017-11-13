@@ -156,8 +156,11 @@ def adminMain():
   if session.get('role') != "admin":
     return index()
   else:
-
-    return render_template("admin.html");
+    aid = session.get('id')
+    name = session.get('username')
+    cursor = g.conn.execute("SELECT * FROM setting WHERE aid = "+ aid).fetchall();
+    cursorr = g.conn.execute("SELECT * FROM auctionroom A, setting S, applysetting AST WHERE AST.sid = S.sid AND A.arid = AST.arid AND A.aid = " + aid).fetchall()
+    return render_template("admin.html", username = name, mysetting = cursor, myrooms = cursorr) ;
 
 @app.route('/biddingRoom/<int:id>')
 def biddingRoom(id):
@@ -267,15 +270,16 @@ def do_login():
 def ad_login():
   id = request.form['id']
   password = request.form['password']
+  session['id'] = id
 
-  cursor = g.conn.execute("SELECT count(*) FROM Admin ")
+  cursor = g.conn.execute("SELECT count(*) FROM Admin WHERE aid= " + id + " AND password= \'" + password + "\'")
   count =  cursor.scalar()
-
-  if count != 0:
-    cursor = g.conn.execute("SELECT * FROM Admin Where aid='"+ id +"' And password='"+password+"'")
+  
+  if count == 1:
+    cursor = g.conn.execute("SELECT name FROM Admin WHERE aid= " + id + " AND password= \'" + password + "\'")
     session['logged_in'] = True
     session['role'] = "admin"
-    session['username'] = cursor['name']
+    session['username'] = cursor.fetchone()['name']
     cursor.close()
   else:
     flash('wrong password!')
