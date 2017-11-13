@@ -23,7 +23,6 @@ from flask import Flask, flash, redirect, render_template, request, session, abo
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user 
 from flask_socketio import SocketIO, send
 from flask_basic_roles import BasicRoleAuth
-import os
 
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -228,7 +227,6 @@ def do_login():
   id = request.form['id']
   password = request.form['password']
   type = request.form['type']
-  session['id'] = id
 
   if type == "buyer":
     cursor = g.conn.execute("SELECT count(*) FROM Buyer Where bid='"+id+"' And password='"+password+"'")
@@ -237,6 +235,8 @@ def do_login():
       cursor = g.conn.execute("SELECT * FROM Buyer Where bid='"+id+"' And password='"+password+"'")
       session['logged_in'] = True
       session['role'] = "buyer"
+      session['id'] = id
+
       nameCursor = g.conn.execute("SELECT name FROM Buyer Where bid='"+id+"' And password='"+password+"'")    
       for name in nameCursor:
         session['username'] = name['name']
@@ -250,10 +250,10 @@ def do_login():
     cursor = g.conn.execute("SELECT count(*) FROM Seller Where sid='"+id+"' And password='"+password+"'")
     count =  cursor.scalar()
     if count != 0:
-
       cursor = g.conn.execute("SELECT * FROM Seller Where sid='"+id+"' And password='"+password+"'")
       session['logged_in'] = True
       session['role'] = "seller"
+      session['id'] = "seller"
       nameCursor = g.conn.execute("SELECT name FROM Seller Where sid='"+id+"' And password='"+password+"'")
       for name in nameCursor:
         session['username'] = name['name']
@@ -265,6 +265,17 @@ def do_login():
       	flash('wrong password!')
   return index()
 
+
+@app.route('/add', methods=['POST'])
+def addItem():
+	itemName = request.form['item-name']
+	itemCategory = request.form['item-category']
+	itemPrice = request.form['item-price']
+	durationFrom = request.form['item-du-from']
+	durationTo = request.form['item-du-to']
+	print itemName + " " + itemCategory +" " + itemPrice +" " + durationFrom +" " + durationTo
+	##insert into item table and auctionroom table
+	return index()
 
 @app.route('/adminlogin', methods=['POST'])
 def ad_login():

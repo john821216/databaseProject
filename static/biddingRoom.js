@@ -10,12 +10,14 @@ $('#bid').on('show.bs.modal', function (event) {
 var socket;
 var numberOfPeople;
 function leave(){
-	var currentRoom = document.URL.split("biddingRoom/")[1];
-	socket.send("<mainPagePP> " + (numberOfPeople-1)+" " + currentRoom);
-	socket.send("<bidLeave> " + $('#id').text()+" " + currentRoom);
-	var millisecondsToWait = 1500;
+	if($('#id').text() != 'seller'){
+		var currentRoom = document.URL.split("biddingRoom/")[1];
+		socket.send("<mainPagePP> " + (numberOfPeople-1)+" " + currentRoom);
+		socket.send("<bidLeave> " + $('#id').text()+" " + currentRoom);
+		var millisecondsToWait = 1500;
+	}
 	setTimeout(function() {
-		window.location = "http://" + document.URL.split("http://")[1].split("/")[0]
+			window.location = "http://" + document.URL.split("http://")[1].split("/")[0]
 	}, millisecondsToWait);
 }
 
@@ -63,6 +65,7 @@ $(document).ready(function() {
 				addMessage(tag,id,"");
 				console.log('Received message');
 				numberOfPeople = id.length-1;
+				
 				//send the length of room
 				socket.send("<mainPagePP> " + numberOfPeople+" " + currentRoom);
 			}

@@ -1,10 +1,18 @@
 from flask import Flask, flash, redirect, render_template, request, session, abort,g
 from flask_socketio import SocketIO, send
+import os
+from sqlalchemy import *
+from sqlalchemy.pool import NullPool
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
 socketio = SocketIO(app)
 dict={}
+
+DATABASEURI = "postgresql://yc3379:2384@35.196.90.148/proj1part2"
+engine = create_engine(DATABASEURI)
+
 @socketio.on('message')
 def handleMessage(msg):
 	print('Message: ' + msg)
@@ -13,12 +21,14 @@ def handleMessage(msg):
 		id = str(msg.split(" ")[1])
 		list=[]
 		if roomNumber not in dict:
-			list.append(id)
+			if id != "seller":
+				list.append(id)
 			dict[roomNumber] = list
 		else:
 			list = dict[roomNumber]
 			if id not in dict[roomNumber]:
-				list.append(id)
+				if id != "seller":
+					list.append(id)
 				dict[roomNumber] = list
 
 		msg ="<bid> " + roomNumber +" "

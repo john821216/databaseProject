@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-    <link id="bsdp-css" href="{{ url_for('static', filename='bootstrap-datepicker3.min.css')}}" rel="stylesheet">
 
   </head>
   <body>
@@ -18,61 +17,50 @@
     </nav>
     <div id="container" style="width:100%;">                                   
         <div id="bidding" style="float:left; width:65%;">
-            <button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#addItem">Add Item</button>
-            <div class="modal fade" id="addItem" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title" id="addItemLabel">New Item</h5>
-                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                          </button>
-                        </div>
-                        <div class="modal-body">
-                          <form>
-                            <div class="form-group">
-                              <label class="form-control-label">Name:</label>
-                              <input type="text" class="form-control" id="item-name">
+            <form id="addItemForm" action="/add" method="post" role="form">
+                <button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#addItem">Add Item</button>
+                <div class="modal fade" id="addItem" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="addItemLabel">New Item</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
                             </div>
-                            <div class="form-group">
-                              <label class="form-control-label">Category:</label>
-                              <input type="text" class="form-control" id="item-category">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-control-label">Price:</label>
-                                <input type="text" class="form-control" id="item-price">
-                            </div>
-                            <div class="form-group">
+                            <div class="modal-body">
+                              <form>
+                                <div class="form-group">
+                                  <label class="form-control-label">Name:</label>
+                                  <input type="text" class="form-control" name ="item-name" id="item-name">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-control-label">Category:</label>
+                                  <input type="text" class="form-control" name ="item-category" id="item-category">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-control-label">Price:</label>
+                                    <input type="text" class="form-control" name ="item-price" id="item-price">
+                                </div>
+                                <div class="form-group">
                                     <label class="form-control-label">Duration From:</label>
-                                    <div class="input-group date" data-provide="datepicker" id="item-du-from">
-                                            <input type="text" class="form-control">
-                                                <div class="input-group-addon">
-                                                    <span>Choose date</span>
-                                                </div>
-                                    </div>
-                            </div>
-                            <div class="form-group">
+                                    <input type="text" class="form-control" name ="item-du-from" id="item-du-from">
+                                </div>
+                                <div class="form-group">
                                     <label class="form-control-label">Duration To:</label>
-                                    <div class="input-group date" data-provide="datepicker" id="item-du-to">
-                                            <input type="text" class="form-control">
-                                                <div class="input-group-addon">
-                                                    <span>Choose date</span>
-                                                </div>
-                                    </div>
+                                    <input type="text" class="form-control" name ="item-du-to" id="item-du-to">
+                                </div>        
+                              </form>
                             </div>
-
-                           
-                          </form>
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                          <button type="button" class="btn btn-primary" id="addItemBtn" onclick="addItem()">Add</button>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                              <button class="btn btn-primary" id="addItemBtn"  type="submit" value="Submit">Add</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!--{% for item in items %}
+            </form>
+            {% for item in items %}
                 <div class="list-group" id="room-group">
                     <a href=/biddingRoom/{{loop.index}} class="list-group-item list-group-item-action flex-column align-items-start">
                         <div class="d-flex w-100 justify-content-between">
@@ -80,10 +68,10 @@
                             <small id=itemTime{{loop.index}}>From {{auctionrooms[loop.index-1]. duration_from}} To {{auctionrooms[loop.index-1].duration_to}}</small>
                         </div>
                         <p id="itemPrice{{loop.index}}">Price: {{item.price}}</p>
-                        <small id=item{{loop.index-1}}Curpeople>Current People: 0/4</small>
+                        <small id=item{{loop.index}}Curpeople>Current People: 0/4</small>
                     </a>
                 </div>
-            {% endfor %}-->
+            {% endfor %}
 
         </div>
            
@@ -120,8 +108,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>    
-    <script src="{{ url_for('static', filename='bootstrap-datepicker.min.js')}}"></script>    
+    </script>
     <script src="{{ url_for('static', filename='mainpage.js') }}"></script>
+    <!--<script src="../static/mainpage.js"></script>-->
   </body>
 </html>
 
