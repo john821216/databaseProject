@@ -290,17 +290,18 @@ def addItem():
   print "Auction Room", newiid, "created item", itemName, "added"
   return index()
 
+
+#### Operations for admin page
 @app.route('/addset', methods=['POST'])
 def addSet():
   aid = session.get('id')
   people = request.form['mppl']
   money = request.form['mmoney']
 
-  #Use newiid for new iid number and new arid number
+  #Use newsid for new sid number 
   newsid = g.conn.execute("SELECT MAX(sid) FROM setting").scalar() + 1
 
   
-  ##create auction room add to item table
   g.conn.execute("INSERT INTO setting VALUES (" + str(newsid) + "," + aid + "," + people + "," + money + ")")
   print "New Setting", newsid, "created"
   return index()
@@ -313,7 +314,7 @@ def updateSet():
   money = request.form['mmoney']
 
   
-  ##create auction room add to item table
+  ##update setting if it belongs to current admin
   g.conn.execute("UPDATE setting SET max_people = " + people + ", max_money = " + money + " WHERE sid = " + sid + " AND aid = " + aid)
   print "condition check setting alter"
   return index()
@@ -323,11 +324,24 @@ def deleteSet():
   aid = session.get('id')
   sid = request.form['set_id']
   
-  ##create auction room add to item table
+  ##delete setting if it belongs to current admin
   g.conn.execute("DELETE FROM setting WHERE sid = " + sid + " AND aid = " + aid)
   print "condition check setting delete"
   return index()
 
+
+@app.route('/chageset', methods=['POST'])
+def changeSet():
+  aid = session.get('id')
+  arid = request.form['room_id']
+  sid = request.form['set_id']
+
+  
+  ##check both setting and auction room must belong to current admin
+  g.conn.execute("UPDATE applysetting SET sid = " + sid + "WHERE arid = " + arid + " AND " + sid + " IN (SELECT sid FROM setting WHERE aid = " + aid +") AND " + arid + " IN (SELECT arid FROM auctionroom WHERE aid = " + aid + ")")
+  print "condition check for change room setting"
+  return index()
+####
 
 @app.route('/adminlogin', methods=['POST'])
 def ad_login():
