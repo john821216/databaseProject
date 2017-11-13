@@ -24,6 +24,9 @@ from flask_login import LoginManager, UserMixin, login_required, login_user, log
 from flask_socketio import SocketIO, send
 from flask_basic_roles import BasicRoleAuth
 
+#define easier function call for date time
+import datetime
+now = datetime.datetime.now()
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -175,8 +178,8 @@ def adminMain():
   else:
     aid = session.get('id')
     name = session.get('username')
-    cursor = g.conn.execute("SELECT * FROM setting WHERE aid = "+ aid).fetchall();
-    cursorr = g.conn.execute("SELECT * FROM auctionroom A, setting S, applysetting AST WHERE AST.sid = S.sid AND A.arid = AST.arid AND A.aid = " + aid).fetchall()
+    cursor = g.conn.execute("SELECT * FROM setting WHERE aid = " + aid  + " ORDER BY sid").fetchall();
+    cursorr = g.conn.execute("SELECT * FROM auctionroom A, setting S, applysetting AST WHERE AST.sid = S.sid AND A.arid = AST.arid AND A.aid = " + aid + " ORDER BY A.arid").fetchall()
     return render_template("admin.html", username = name, mysetting = cursor, myrooms = cursorr) ;
 
 @app.route('/biddingRoom/<int:id>')
@@ -292,16 +295,79 @@ def do_login():
   return index()
 
 
-@app.route('/add', methods=['POST'])
+@app.route('/additem', methods=['POST'])
 def addItem():
-	itemName = request.form['item-name']
-	itemCategory = request.form['item-category']
-	itemPrice = request.form['item-price']
-	durationFrom = request.form['item-du-from']
-	durationTo = request.form['item-du-to']
-	print itemName + " " + itemCategory +" " + itemPrice +" " + durationFrom +" " + durationTo
-	##insert into item table and auctionroom table
-	return index()
+  sid = session.get('id')
+  itemName = request.form['item-name']
+  itemCategory = request.form['item-category']
+  itemPrice = request.form['item-price']
+  durationFrom = request.form['item-du-from']
+  durationTo = request.form['item-du-to']
+
+  #inputformat 'm(m)/d(d)/yyyy hhmm00'
+  date = str(now.month) + "/" + str(now.day) + "/" + str(now.year) + " "
+  #Use newiid for new iid number and new arid number
+  newiid = g.conn.execute("SELECT MAX(iid) FROM item").scalar() + 1
+
+  aid = g.conn.execute("SELECT aid FROM auctionroom WHERE arid = " + str(newiid % 10)).scalar()
+  ##create auction room add to item table
+  g.conn.execute("INSERT INTO auctionroom VALUES (" + str(newiid) + ",'" + itemCategory + "', '" + date + durationFrom + "00', '" + date + durationTo + "00', " + str(aid) + ")")
+  g.conn.execute("INSERT INTO item VALUES (" + str(newiid) + ",'" + sid + "','" + itemName + "','" + itemCategory + "',"  + itemPrice + "," + itemPrice + "," + str(newiid) + ", 0 )")
+  print "Auction Room", newiid, "created item", itemName, "added"
+  return index()
+
+
+#### Operations for admin page
+@app.route('/addset', methods=['POST'])
+def addSet():
+  aid = session.get('id')
+  people = request.form['mppl']
+  money = request.form['mmoney']
+
+  #Use newsid for new sid number 
+  newsid = g.conn.execute("SELECT MAX(sid) FROM setting").scalar() + 1
+
+  
+  g.conn.execute("INSERT INTO setting VALUES (" + str(newsid) + "," + aid + "," + people + "," + money + ")")
+  print "New Setting", newsid, "created"
+  return index()
+
+@app.route('/modset', methods=['POST'])
+def updateSet():
+  aid = session.get('id')
+  sid = request.form['set_id']
+  people = request.form['mppl']
+  money = request.form['mmoney']
+
+  
+  ##update setting if it belongs to current admin
+  g.conn.execute("UPDATE setting SET max_people = " + people + ", max_money = " + money + " WHERE sid = " + sid + " AND aid = " + aid)
+  print "condition check setting alter"
+  return index()
+
+@app.route('/delset', methods=['POST'])
+def deleteSet():
+  aid = session.get('id')
+  sid = request.form['set_id']
+  
+  ##delete setting if it belongs to current admin
+  g.conn.execute("DELETE FROM setting WHERE sid = " + sid + " AND aid = " + aid)
+  print "condition check setting delete"
+  return index()
+
+
+@app.route('/chageset', methods=['POST'])
+def changeSet():
+  aid = session.get('id')
+  arid = request.form['room_id']
+  sid = request.form['set_id']
+
+  
+  ##check both setting and auction room must belong to current admin
+  g.conn.execute("UPDATE applysetting SET sid = " + sid + "WHERE arid = " + arid + " AND " + sid + " IN (SELECT sid FROM setting WHERE aid = " + aid +") AND " + arid + " IN (SELECT arid FROM auctionroom WHERE aid = " + aid + ")")
+  print "condition check for change room setting"
+  return index()
+####
 
 @app.route('/adminlogin', methods=['POST'])
 def ad_login():
