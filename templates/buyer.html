@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-    <link id="bsdp-css" href="{{ url_for('static', filename='bootstrap-datepicker3.min.css')}}" rel="stylesheet">
 
   </head>
   <body>
@@ -76,15 +75,16 @@
                 <div class="list-group" id="room-group">
                     <a href=/biddingRoom/{{loop.index}} class="list-group-item list-group-item-action flex-column align-items-start">
                         <div class="d-flex w-100 justify-content-between">
-                            <h5 id=itemName{{loop.index}}>{{item.name}}</h5>
-                            <small id=itemTime{{loop.index}}>From {{auctionrooms[loop.index-1]. duration_from}} To {{auctionrooms[loop.index-1].duration_to}}</small>
+                            <h5 id=itemName{{item.iid}}>{{item.name}}</h5>
+                            <small id=itemTime{{item.iid}}>From {{auctionrooms[item.iid-1]. duration_from}} To {{auctionrooms[item.iid-1].duration_to}}</small>
                         </div>
-                        <p id="itemPrice{{loop.index}}">Price: {{item.price}}</p>
-                        <small id=item{{loop.index}}Curpeople>Current People: 0/4</small>
+                        <p id="itemPrice{{item.iid}}">Price: {{item.current_bidding}}</p>
+                        <small id=item{{item.iid}}Curpeople>Current People: {{auctionroomList[item.iid-1]}}/4</small>
 
                     </a>
                 </div>
             {% endfor %}
+
         </div>
            
         <div id="chatRoom" style="float:right; width:25%;"> 
@@ -120,7 +120,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>    
-    <script src="{{ url_for('static', filename='bootstrap-datepicker.min.js')}}"></script>    
     <script src="{{ url_for('static', filename='mainpage.js') }}"></script>
   </body>
 </html>

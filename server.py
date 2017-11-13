@@ -137,8 +137,17 @@ def buyerMain():
   else:
     cursor = g.conn.execute("SELECT * FROM auctionroom").fetchall()
     numberOfAuctionRoom = g.conn.execute("SELECT count(*) FROM auctionRoom")
-    newcursor = g.conn.execute("SELECT * FROM item WHERE arid>=1 And arid<='" + str(numberOfAuctionRoom.scalar())+"'").fetchall()
-    return render_template("buyer.html", username = session['username'],  money = session['money'],items=newcursor, auctionrooms=cursor)
+    lenOfAuctionRoom = numberOfAuctionRoom.scalar()
+    newcursor = g.conn.execute("SELECT * FROM item WHERE arid>=1 And arid<='" + str(lenOfAuctionRoom)+"'ORDER BY (iid)").fetchall()
+    peoplecursor = g.conn.execute("SELECT arid, count(*) FROM participateab GROUP BY arid ORDER BY (arid)")
+    auctionroomsPPList=[]
+    for i in range(lenOfAuctionRoom):
+    	auctionroomsPPList.append(0)
+    for a in peoplecursor:
+    	auctionroomsPPList[a['arid']-1] = int(a['count'])
+    	print str(a['arid'])+" " + str(a['count'])
+    print auctionroomsPPList
+    return render_template("buyer.html", username = session['username'],  money = session['money'],items=newcursor, auctionrooms=cursor, auctionroomList=auctionroomsPPList)
 
 @app.route('/seller')
 def sellerMain():
@@ -147,8 +156,17 @@ def sellerMain():
   else:
     cursor = g.conn.execute("SELECT * FROM auctionroom").fetchall()
     numberOfAuctionRoom = g.conn.execute("SELECT count(*) FROM auctionRoom")
-    newcursor = g.conn.execute("SELECT * FROM item WHERE arid>=1 And arid<='" + str(numberOfAuctionRoom.scalar())+"'").fetchall()
-    return render_template("seller.html", username = session['username'], money = session['money'], items=newcursor, auctionrooms=cursor)
+    lenOfAuctionRoom = numberOfAuctionRoom.scalar()
+    newcursor = g.conn.execute("SELECT * FROM item WHERE arid>=1 And arid<='" + str(lenOfAuctionRoom)+"'ORDER BY (iid)").fetchall()
+    peoplecursor = g.conn.execute("SELECT arid, count(*) FROM participateab GROUP BY arid")
+    auctionroomsPPList=[]
+    for i in range(lenOfAuctionRoom):
+    	auctionroomsPPList.append(0)
+    for a in peoplecursor:
+    	auctionroomsPPList[a['arid']-1] = int(a['count'])
+    	print str(a['arid']-1)+" " + str(a['count'])
+    print auctionroomsPPList
+    return render_template("seller.html", username = session['username'], money = session['money'], items=newcursor, auctionrooms=cursor,auctionPeopleCount=peoplecursor,auctionroomList=auctionroomsPPList)
 
 @app.route('/admin')
 def adminMain():
@@ -163,12 +181,20 @@ def adminMain():
 
 @app.route('/biddingRoom/<int:id>')
 def biddingRoom(id):
-	#print id
-  #insert table people
 	cursor = g.conn.execute("SELECT * FROM auctionroom WHERE arid='"+str(id)+"'").fetchall()
 	newcursor = g.conn.execute("SELECT * FROM item WHERE arid='"+str(id)+"'").fetchall()
-	return render_template("biddingRoom.html", buyerid = session['id'],username = session['username'], money = session['money'],items=newcursor, auctionrooms=cursor)
+	return render_template("biddingRoom.html", id = session['id'], role = session['role'],username = session['username'], money = session['money'],items=newcursor, auctionrooms=cursor)
 
+@app.route('/bid',methods=['POST'] )
+def bidMoney():
+	price = request.form['item-price']
+	room = request.form['room']
+	cbid = request.form['cbid']
+	cursor = g.conn.execute("UPDATE item SET current_bidding ='" +str(price) +"',cbid='"+str(cbid)+"' WHERE arid='"+str(room)+"'")
+	print price 
+	print room
+	print cbid
+	return ""
   #
   # example of a database query
   #
@@ -253,7 +279,7 @@ def do_login():
       cursor = g.conn.execute("SELECT * FROM Seller Where sid='"+id+"' And password='"+password+"'")
       session['logged_in'] = True
       session['role'] = "seller"
-      session['id'] = "seller"
+      session['id'] = id
       nameCursor = g.conn.execute("SELECT name FROM Seller Where sid='"+id+"' And password='"+password+"'")
       for name in nameCursor:
         session['username'] = name['name']
@@ -373,7 +399,6 @@ def leaveRoom():
     cursor.close()
 
   return ""
-
 
 # Example of adding new data to the database
 #@app.route('/add', methods=['POST'])

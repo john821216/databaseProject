@@ -4,18 +4,17 @@ $('#bid').on('show.bs.modal', function (event) {
   // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
   var modal = $(this)
   modal.find('.modal-title').text('New Item');
-  //modal.find('.modal-body input').val(recipient);
 })
 
 var socket;
 var numberOfPeople;
 function leave(){
-	if($('#id').text() != 'seller'){
+	if($('#role').text() != 'seller'){
 		var currentRoom = document.URL.split("biddingRoom/")[1];
 		socket.send("<mainPagePP> " + (numberOfPeople-1)+" " + currentRoom);
-		socket.send("<bidLeave> " + $('#id').text()+" " + currentRoom);
-		var millisecondsToWait = 1500;
 	}
+	socket.send("<bidLeave> " +$('#role').text() +" " +$('#id').text()+" " + currentRoom);
+	var millisecondsToWait = 1500;
 	setTimeout(function() {
 			window.location = "http://" + document.URL.split("http://")[1].split("/")[0]
 	}, millisecondsToWait);
@@ -38,10 +37,30 @@ function addMessage(tag,id,msg){
 }
 
 function bidding(){
-	var price = $("#item-price").val();
-	var currentRoom = document.URL.split("biddingRoom/")[1];
-	socket.send("<bidMoney> " + price+" " + currentRoom);
-	$('#addBid').modal('hide');
+	if($("#role").text() != "seller"){
+		var price = $("#item-price").val();
+		var currentRoom = document.URL.split("biddingRoom/")[1];
+		socket.send("<bidMoney> " + price+" " + currentRoom);
+		$('#addBid').modal('hide');
+
+		var currentRoom = document.URL.split("biddingRoom/")[1];
+		var d = $('#bidPriceForm').serializeArray();
+		d.push({name: 'room', value: currentRoom});
+		d.push({name: 'cbid', value: $('#id').text()})
+		$.ajax({
+	        url: '/bid',
+	        data: d,
+	        type: 'POST',
+	        success: function(response) {
+	            //console.log(response);
+	        },
+	        error: function(error) {
+	            //console.log(error);
+	        }
+	    });
+	} else{
+		alert("Seller is not allowed bidding");
+	}
 }
 
 
@@ -50,7 +69,7 @@ $(document).ready(function() {
 	socket = io.connect('http://' + document.domain + ':' + "5000");
 	var currentRoom = document.URL.split("biddingRoom/")[1];
 	socket.on('connect', function() {
-		socket.send("<bid> " + $('#id').text()+" " + currentRoom);
+		socket.send("<bid> " + $('#role').text() + " " +$('#id').text()+" " + currentRoom);
 	});
 
 	socket.on('message', function(msg) {
@@ -65,7 +84,7 @@ $(document).ready(function() {
 				addMessage(tag,id,"");
 				console.log('Received message');
 				numberOfPeople = id.length-1;
-				
+
 				//send the length of room
 				socket.send("<mainPagePP> " + numberOfPeople+" " + currentRoom);
 			}
@@ -74,9 +93,11 @@ $(document).ready(function() {
 		} else if(tag =="<bidMoney>"){
 			var roomNumber = msg.split(" ")[2];
 			var price = msg.split(" ")[1];
+			//send the length of room
+			socket.send("<mainPagePM> " + price+" " + roomNumber);
 			if(roomNumber == currentRoom){
 				addMessage(tag,price,"");
 			}
-		}
+		} 
 	});
 });

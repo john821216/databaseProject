@@ -61,14 +61,16 @@
                 </div>
             </form>
             {% for item in items %}
+            <!-- room list -->
                 <div class="list-group" id="room-group">
                     <a href=/biddingRoom/{{loop.index}} class="list-group-item list-group-item-action flex-column align-items-start">
                         <div class="d-flex w-100 justify-content-between">
-                            <h5 id=itemName{{loop.index}}>{{item.name}}</h5>
-                            <small id=itemTime{{loop.index}}>From {{auctionrooms[loop.index-1]. duration_from}} To {{auctionrooms[loop.index-1].duration_to}}</small>
+                            <h5 id=itemName{{item.iid}}>{{item.name}}</h5>
+                            <small id=itemTime{{item.iid}}>From {{auctionrooms[item.iid-1]. duration_from}} To {{auctionrooms[item.iid-1].duration_to}}</small>
                         </div>
-                        <p id="itemPrice{{loop.index}}">Price: {{item.price}}</p>
-                        <small id=item{{loop.index}}Curpeople>Current People: 0/4</small>
+                        <p id="itemPrice{{item.iid}}">Price: {{item.current_bidding}}</p>
+                        <small id=item{{item.iid}}Curpeople>Current People: {{auctionroomList[item.iid-1]}}/4</small>
+
                     </a>
                 </div>
             {% endfor %}

@@ -80,6 +80,10 @@ $(document).ready(function() {
 			var roomNumber = msg.split(" ")[2];
 			var maxPeople = 4;
 			$("#item" + roomNumber+ "Curpeople").text("Current People: " + numberOfPeople +"/"+ maxPeople );
+		} else if(tag=="<mainPagePM>"){
+			var price = msg.split(" ")[1];
+			var roomNumber = msg.split(" ")[2];
+			$("#itemPrice" + roomNumber).text("Price: " + price);
 		}
 	});
 	$('#mesSend').on('click', function() {
