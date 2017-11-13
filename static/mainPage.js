@@ -38,7 +38,6 @@ function addItem(){
 	var durationFrom = $("#item-du-from").datepicker('getDate').toString().split(" ")[1] +" "+ $("#item-du-from").datepicker('getDate').toString().split(" ")[2] +" "+  $("#item-du-from").datepicker('getDate').toString().split(" ")[3]
 	var durationTo = $("#item-du-to").datepicker('getDate').toString().split(" ")[1] +" "+ $("#item-du-from").datepicker('getDate').toString().split(" ")[2] +" "+  $("#item-du-to").datepicker('getDate').toString().split(" ")[3]
 	console.log(itemName+" "+ itemCategory+" "+ itemPrice +" " + durationFrom +" " + durationTo);
-	//console.log($('#item-du-to').datepicker('getDate'));
 	$("#room-group").append("<a href='#'' class='list-group-item list-group-item-action flex-column align-items-start'><div class='d-flex w-100 justify-content-between'><h5 id="+'itemName'+itemCount+">"+itemName+"</h5><small id="+'itemTime'+ itemCount+"> From: " + durationFrom + " To: " + durationTo+"</small>"+"</div><p id=" + 'itemPrice' +itemCount +">"+itemPrice+"</p></a>");                           
 	$('#addItem').modal('hide')
 	$( "#item-name" ).val("");
@@ -83,13 +82,20 @@ $(document).ready(function() {
 	});
 	socket.on('message', function(msg) {
 		var tag = msg.split(" ")[0]
-		var name = msg.split(" ")[1];
-		var mes="";
-		for(var i = 2 ; i < msg.split(" ").length ; i++){
-			mes += msg.split(" ")[i]+" ";
+		if(tag=="<msg>"){
+			var name = msg.split(" ")[1];
+			var mes="";
+			for(var i = 2 ; i < msg.split(" ").length ; i++){
+				mes += msg.split(" ")[i]+" ";
+			}
+			addMessage(tag,name,mes);
+			console.log('Received message');
+		} else if(tag=="<mainPagePP>"){
+			var numberOfPeople = msg.split(" ")[1];
+			var roomNumber = msg.split(" ")[2];
+			var maxPeople = 4;
+			$("#item" + roomNumber+ "Curpeople").text("Current People: " + numberOfPeople +"/"+ maxPeople );
 		}
-		addMessage(tag,name,mes);
-		console.log('Received message');
 	});
 	$('#mesSend').on('click', function() {
 		socket.send("<msg>" + " " + $('#username').text()+" " +$('#mes').val());

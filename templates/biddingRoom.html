@@ -13,19 +13,20 @@
   <body>
     <nav class="navbar navbar-light bg-faded" style="background-color: #e3f2fd;">
         <a class="navbar-brand" href="#">
-            Bidding Room Hello <span id="username">{{ username }}</span> <span id="currentMoney">Currnet Money: {{money}}</span>
+            Bidding Room Hello <span id="id">{{buyerid}}</span><span id="currentMoney"> Currnet Money: {{money}}</span>
         </a>
     </nav>
     <div class="container">
       {% for item in items %}
         <p>Name : {{item.name}}</p>
         <p>Category: {{item.category}}</p>
-        <p>Current Price: {{item.current_bidding}}</p>
+        <p id="currentPrice">Current Price: {{item.current_bidding}}</p>
         <p>Duration From: {{auctionrooms[0].duration_from}}</p>
         <p>Duration To: {{auctionrooms[0].duration_to}}</p>
         <p id="currentPP">Current People: </p>
       {% endfor %}
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addBid">I Want This</button>
+      <button type="button" class="btn btn-success" onclick="leave()"> Leave</button>
     </div>
 
 

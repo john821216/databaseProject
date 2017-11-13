@@ -165,7 +165,7 @@ def biddingRoom(id):
   #insert table people
 	cursor = g.conn.execute("SELECT * FROM auctionroom WHERE arid='"+str(id)+"'").fetchall()
 	newcursor = g.conn.execute("SELECT * FROM item WHERE arid='"+str(id)+"'").fetchall()
-	return render_template("biddingRoom.html", username = session['username'], money = session['money'],items=newcursor, auctionrooms=cursor)
+	return render_template("biddingRoom.html", buyerid = session['id'],username = session['username'], money = session['money'],items=newcursor, auctionrooms=cursor)
 
   #
   # example of a database query
@@ -225,6 +225,7 @@ def do_login():
   id = request.form['id']
   password = request.form['password']
   type = request.form['type']
+  session['id'] = id
   if type == "buyer":
     cursor = g.conn.execute("SELECT count(*) FROM Buyer Where bid='"+id+"' And password='"+password+"'")
     count =  cursor.scalar()

@@ -6,59 +6,73 @@ $('#bid').on('show.bs.modal', function (event) {
   modal.find('.modal-title').text('New Item');
   //modal.find('.modal-body input').val(recipient);
 })
+
+var socket;
+var numberOfPeople;
+function leave(){
+	var currentRoom = document.URL.split("biddingRoom/")[1];
+	socket.send("<mainPagePP> " + (numberOfPeople-1)+" " + currentRoom);
+	socket.send("<bidLeave> " + $('#id').text()+" " + currentRoom);
+	//send the length of room
+	console.log("16");
+	window.location = "http://" + document.URL.split("http://")[1].split("/")[0]
+}
+
 enter=false;
-var pp=[];
-function addMessage(tag,name,msg){
-	console.log(tag+ " " + name +" " + msg);
+function addMessage(tag,id,msg){
 	if(tag == "<msg>" && msg != "" && enter == true){
 		console.log("Mes+" + msg);
 		$("#messageBoard").append( "<div class='row message-bubble'><p class='text-muted'>" +name+" : </p><p>"+msg+"</p></div>" );
 		$("#mes" ).val("")
 	} else if(tag=="<bid>"){
-		var otherRoom = msg.split(" ")[0];
-		var user = name;
-		var myRoom = document.URL.split("biddingRoom/")[1];
-		if(myRoom== otherRoom){
-			pp.push(user);
-			var users=""
-			for(var i = 0 ; i < pp.length ; i++){
-				if(i==0){
-					users = pp[i];
-				} else{
-					users += " " + pp[i];
-				}
-			}
-			var socket = io.connect('http://' + document.domain + ':' + "5000");
-			socket.on('connect', function() {
-				socket.send("<bidUpdate> " + myRoom+" " + users);
-			});
-		}
-	} else if(tag=="<bidUpdate>"){
-		var otherRoom = name;
 		$("#currentPP").text("Current People: ");
-		pp=[];
-		for(var i =0 ; i < msg.split(" ").length ; i++){
-			$("#currentPP").append(msg.split(" ")[i] +" ");
-			pp.push(msg.split(" ")[i]);
+		for(var i =0 ; i < id.length ; i++){
+			$("#currentPP").append(id[i] +" ");
 		}	
-		console.log(pp);
+	} else if(tag=="<bidMoney>"){
+		$("#currentPrice").text("Current Price: " + id);
 	}
 }
 
+function bidding(){
+	var price = $("#item-price").val();
+	var currentRoom = document.URL.split("biddingRoom/")[1];
+	socket.send("<bidMoney> " + price+" " + currentRoom);
+	$('#addBid').modal('hide');
+}
+
+
+
 $(document).ready(function() {
-	var socket = io.connect('http://' + document.domain + ':' + "5000");
+	socket = io.connect('http://' + document.domain + ':' + "5000");
 	var currentRoom = document.URL.split("biddingRoom/")[1];
 	socket.on('connect', function() {
-		socket.send("<bid> " + $('#username').text()+" " + currentRoom);
+		socket.send("<bid> " + $('#id').text()+" " + currentRoom);
 	});
+
 	socket.on('message', function(msg) {
-		var tag = msg.split(" ")[0]
-		var name = msg.split(" ")[1];
-		var mes="";
-		for(var i = 2 ; i < msg.split(" ").length ; i++){
-			mes += msg.split(" ")[i]+" ";
+		var tag = msg.split(" ")[0];
+		if(tag == "<bid>"){
+			var roomNumber = msg.split(" ")[1];
+			var id = [];
+			if(roomNumber == currentRoom){
+				for(var i = 2 ; i < msg.split(" ").length ; i++){
+					id.push(msg.split(" ")[i]);
+				}
+				addMessage(tag,id,"");
+				console.log('Received message');
+				numberOfPeople = id.length-1;
+				//send the length of room
+				socket.send("<mainPagePP> " + numberOfPeople+" " + currentRoom);
+			}
+			console.log(id.length);
+
+		} else if(tag =="<bidMoney>"){
+			var roomNumber = msg.split(" ")[2];
+			var price = msg.split(" ")[1];
+			if(roomNumber == currentRoom){
+				addMessage(tag,price,"");
+			}
 		}
-		addMessage(tag,name,mes);
-		console.log('Received message');
 	});
 });
