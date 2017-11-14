@@ -471,7 +471,7 @@ def leaveRoom():
 
 @app.route('/logout')
 def logout():
-	session.get('logged_in') = False
+	session['logged_in'] = False
 	return index()
 # Example of adding new data to the database
 #@app.route('/add', methods=['POST'])
