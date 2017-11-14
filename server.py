@@ -150,6 +150,7 @@ def buyerMain():
     	auctionroomsPPList[a['arid']-1] = int(a['count'])
     	print str(a['arid'])+" " + str(a['count'])
     print auctionroomsPPList
+    
     return render_template("buyer.html", username = session['username'],  money = session['money'],items=newcursor, auctionrooms=cursor, auctionroomList=auctionroomsPPList)
 
 @app.route('/seller')
