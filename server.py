@@ -151,6 +151,27 @@ def buyerMain():
     	print str(a['arid'])+" " + str(a['count'])
     print auctionroomsPPList
     
+    cursor = g.conn.execute("SELECT * FROM auctionroom A, item I where A.duration_to<= LOCALTIMESTAMP AND A.arid = I.arid").fetchall()
+    for d in cursor:
+    	cbid = d['cbid']
+    	sid = d['sid']
+    	current_bidding = d['current_bidding']
+    	print str(cbid) +" " + str(sid) +" " + str(current_bidding)
+
+    	sCursor = g.conn.execute("SELECT money FROM seller WHERE sid="+str(sid))
+    	for s in sCursor:
+    		sMoney = s['money']
+    		g.conn.execute("UPDATE seller set money ="+str(sMoney+current_bidding)+" WHERE sid="+str(sid))
+
+   		bCursor = g.conn.execute("SELECT money FROM buyer WHERE bid="+str(cbid))
+    	for b in bCursor:
+    		bMoney = b['money']
+    		g.conn.execute("UPDATE buyer set money ="+str(bMoney-current_bidding)+" WHERE bid="+str(cbid))
+    for d in cursor:
+    	arid = d['arid']
+    	g.conn.execute("UPDATE auctionroom set duration_to = timestamp '9999-01-01 00:00:00' where arid="+str(arid))
+
+
     return render_template("buyer.html", username = session['username'],  money = session['money'],items=newcursor, auctionrooms=cursor, auctionroomList=auctionroomsPPList)
 
 @app.route('/seller')
@@ -170,6 +191,28 @@ def sellerMain():
     	auctionroomsPPList[a['arid']-1] = int(a['count'])
     	print str(a['arid']-1)+" " + str(a['count'])
     print auctionroomsPPList
+
+    cursor = g.conn.execute("SELECT * FROM auctionroom A, item I where A.duration_to<= LOCALTIMESTAMP AND A.arid = I.arid").fetchall()
+    for d in cursor:
+    	cbid = d['cbid']
+    	sid = d['sid']
+    	current_bidding = d['current_bidding']
+    	print str(cbid) +" " + str(sid) +" " + str(current_bidding)
+
+    	sCursor = g.conn.execute("SELECT money FROM seller WHERE sid="+str(sid))
+    	for s in sCursor:
+    		sMoney = s['money']
+    		g.conn.execute("UPDATE seller set money ="+str(sMoney+current_bidding)+" WHERE sid="+str(sid))
+
+   		bCursor = g.conn.execute("SELECT money FROM buyer WHERE bid="+str(cbid))
+    	for b in bCursor:
+    		bMoney = b['money']
+    		g.conn.execute("UPDATE buyer set money ="+str(bMoney-current_bidding)+" WHERE bid="+str(cbid))
+    for d in cursor:
+    	arid = d['arid']
+    	g.conn.execute("UPDATE auctionroom set duration_to = timestamp '1970-01-01 00:00:00' where arid="+str(arid))
+
+
     return render_template("seller.html", username = session['username'], money = session['money'], items=newcursor, auctionrooms=cursor,auctionPeopleCount=peoplecursor,auctionroomList=auctionroomsPPList)
 
 @app.route('/admin')
@@ -469,7 +512,7 @@ def leaveRoom():
 
 
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 def logout():
 	session['logged_in'] = False
 	return index()

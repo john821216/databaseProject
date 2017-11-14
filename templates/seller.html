@@ -12,7 +12,7 @@
   <body>
     <nav class="navbar navbar-light bg-faded" style="background-color: #e3f2fd;">
         <a class="navbar-brand" href="#">
-            Bidding Room Hello <span id="username">{{ username }}</span> <span id="currentMoney">Currnet Money: {{money}}</span>
+            Bidding Room Hello <span id="username">{{ username }}</span> <span id="currentMoney">Currnet Money: {{money}}</span><form action="/logout" method="post"><button name="logout" style="float:right; value="logout" class="btn btn-primary">Logout</button></form>
         </a>
     </nav>
     <div id="container" style="width:100%;">                                   
@@ -69,8 +69,7 @@
                             <small id=itemTime{{item.iid}}>From {{item. duration_from}} To {{item.duration_to}}</small>
                         </div>
                         <p id="itemPrice{{item.iid}}">Price: {{item.current_bidding}}</p>
-                        <small id=item{{item.iid}}Curpeople>Current Bidders: {{auctionroomList[item.iid-1]}} / {{item.max_people}}</small>
-
+                        <small id=item{{item.iid}}Curpeople>Current Bidders: {{auctionroomList[item.iid-1]}} / </small><small id="maxPeople{{item.iid}}">{{item.max_people}}</small>
                     </a>
                 </div>
             {% endfor %}
