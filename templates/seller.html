@@ -63,7 +63,7 @@
             {% for item in items %}
             <!-- room list -->
                 <div class="list-group" id="room-group">
-                    <a href=/biddingRoom/{{loop.index}} class="list-group-item list-group-item-action flex-column align-items-start">
+                    <a href=/biddingRoom/{{item.iid}} class="list-group-item list-group-item-action flex-column align-items-start">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 id=itemName{{item.iid}}>{{item.name}}</h5>
                             <small id=itemTime{{item.iid}}>From {{item. duration_from}} To {{item.duration_to}}</small>
