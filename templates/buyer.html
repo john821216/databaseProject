@@ -76,10 +76,10 @@
                     <a href=/biddingRoom/{{loop.index}} class="list-group-item list-group-item-action flex-column align-items-start">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 id=itemName{{item.iid}}>{{item.name}}</h5>
-                            <small id=itemTime{{item.iid}}>From {{auctionrooms[item.iid-1]. duration_from}} To {{auctionrooms[item.iid-1].duration_to}}</small>
+                            <small id=itemTime{{item.iid}}>From {{item. duration_from}} To {{item.duration_to}}</small>
                         </div>
                         <p id="itemPrice{{item.iid}}">Price: {{item.current_bidding}}</p>
-                        <small id=item{{item.iid}}Curpeople>Current People: {{auctionroomList[item.iid-1]}}/4</small>
+                        <small id=item{{item.iid}}Curpeople>Current Bidders: {{auctionroomList[item.iid-1]}} / {{item.max_people}}</small>
 
                     </a>
                 </div>

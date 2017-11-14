@@ -141,7 +141,7 @@ def buyerMain():
     cursor = g.conn.execute("SELECT * FROM auctionroom").fetchall()
     numberOfAuctionRoom = g.conn.execute("SELECT count(*) FROM auctionRoom")
     lenOfAuctionRoom = numberOfAuctionRoom.scalar()
-    newcursor = g.conn.execute("SELECT * FROM item WHERE arid>=1 And arid<='" + str(lenOfAuctionRoom)+"'ORDER BY (iid)").fetchall()
+    newcursor = g.conn.execute("SELECT * FROM item I, applysetting APS, setting S, auctionroom A WHERE I.arid>=1 AND I.arid<='" + str(lenOfAuctionRoom)+"' AND I.arid = APS.arid AND APS.sid = S.sid AND A.arid = I.arid AND A.duration_to >= LOCALTIMESTAMP AND A.duration_from <= LOCALTIMESTAMP ORDER BY (I.iid)").fetchall()
     peoplecursor = g.conn.execute("SELECT arid, count(*) FROM participateab GROUP BY arid ORDER BY (arid)")
     auctionroomsPPList=[]
     for i in range(lenOfAuctionRoom):
@@ -160,7 +160,7 @@ def sellerMain():
     cursor = g.conn.execute("SELECT * FROM auctionroom").fetchall()
     numberOfAuctionRoom = g.conn.execute("SELECT count(*) FROM auctionRoom")
     lenOfAuctionRoom = numberOfAuctionRoom.scalar()
-    newcursor = g.conn.execute("SELECT * FROM item WHERE arid>=1 And arid<='" + str(lenOfAuctionRoom)+"'ORDER BY (iid)").fetchall()
+    newcursor = g.conn.execute("SELECT * FROM item I, applysetting APS, setting S, auctionroom A WHERE I.arid>=1 AND I.arid<='" + str(lenOfAuctionRoom)+"' AND I.arid = APS.arid AND APS.sid = S.sid AND A.arid = I.arid AND A.duration_to >= LOCALTIMESTAMP AND A.duration_from <= LOCALTIMESTAMP ORDER BY (I.iid)").fetchall()
     peoplecursor = g.conn.execute("SELECT arid, count(*) FROM participateab GROUP BY arid")
     auctionroomsPPList=[]
     for i in range(lenOfAuctionRoom):
