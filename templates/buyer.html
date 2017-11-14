@@ -79,7 +79,7 @@
                             <small id=itemTime{{item.iid}}>From {{item. duration_from}} To {{item.duration_to}}</small>
                         </div>
                         <p id="itemPrice{{item.iid}}">Price: {{item.current_bidding}}</p>
-                        <small id=item{{item.iid}}Curpeople>Current Bidders: {{auctionroomList[item.iid-1]}} / {{item.max_people}}</small>
+                        <small id=item{{item.iid}}Curpeople>Current Bidders: {{auctionroomList[item.iid-1]}} / <small id="maxPeople{{item.iid}}">{{item.max_people}}<small></small>
 
                     </a>
                 </div>
