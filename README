@@ -1,0 +1,30 @@
+W4111 Database 2017 Fall 
+Project 1 Part 3
+yc3379 jl4969
+
+DB PSQL account: yc3379
+
+Web application URL:
+http://35.196.101.198:8111/
+
+Description:
+In this project we developed an online trading platform, which offer users to either buy or sell items via the our platform. 
+Basically users on the platform will be seperate into three different roles, buyer, seller and admin. There will be auctions rooms where buyers and sellers could trade merchandise. Admin are priviledge users that do not participate the auction, but manage the auction system. Admins are allowed to modify settings of the auction room, controlling the number of bidders and the amount of bidding price allowed. 
+Furthermore, we also implemented a chatroom for all buyers and sellers, so that they could communicate, exchange information in the chatroom.
+Last, for security reason all users of the system must register for an acount, users may only enter the platform via their password
+
+For this project we implement most parts that we proposed previously, the only modification is that originally, we would want admins to setup auction room and let seller to send items into the auction room, however this may only increase abundance of tedious error checking implementation, thus we modify the auction room to be created when item is added by seller then assigning rooms to admin.
+
+
+The two most interesting webpage we implemented:
+
+buyer/seller.html
+
+The buyer and seller page are similar in implementation, the buyer/seller page can be considered our most interesting web page. In this page we've constructed a combined interface, allowing users to observe both situations of the auction rooms and the chat room. 
+Users can easy read chats from the chat room and see the current bidding situation in each auction room. Buyers can easily enter the auction room to give a new bid for mechandise, also all user can be able to know who are the contestants bidding the same item.
+Furthermore, our interface is implemented in realtime, so users wouldn't have to reload the webpage to see most recent chatroom and auction room status.
+This page includes most implementation contaion most of the SQL codes to retrieve each entity's information.
+
+admin.html
+
+In admin's page, administrator can browse room settings that he/she manages. Administrator can then add, modifiy or delete the rules that he controls. Furthermore, in admin page also displays the auction rooms that current administrator controls, the admin can apply different setting to the rooms he controls. As rule of thumb, admins can not affect each other, so the admin page extensively uses SQL conditions on checking and displaying information. So that each admin can only see, apply and modify the rules and auction rooms that he/she is in charge of, preventing interference from other admin.
