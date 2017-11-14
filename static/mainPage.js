@@ -113,8 +113,7 @@ $(document).ready(function() {
 		} else if(tag=="<mainPagePP>"){
 			var numberOfPeople = msg.split(" ")[1];
 			var roomNumber = msg.split(" ")[2];
-			var maxPeople = 4;
-			$("#item" + roomNumber+ "Curpeople").text("Current People: " + numberOfPeople +"/"+ maxPeople );
+			$("#item" + roomNumber+ "Curpeople").text("Current People: " + numberOfPeople +"/"+ $("#maxPeople"+roomNumber).text());
 		} else if(tag=="<mainPagePM>"){
 			var price = msg.split(" ")[1];
 			var roomNumber = msg.split(" ")[2];
