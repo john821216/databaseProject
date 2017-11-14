@@ -8,9 +8,9 @@ Web application URL:
 http://35.196.101.198:8111/
 
 Description:
-In this project we developed an online trading platform, which offer users to either buy or sell items via the our platform. 
-Basically users on the platform will be seperate into three different roles, buyer, seller and admin. There will be auctions rooms where buyers and sellers could trade merchandise. Admin are priviledge users that do not participate the auction, but manage the auction system. Admins are allowed to modify settings of the auction room, controlling the number of bidders and the amount of bidding price allowed. 
-Furthermore, we also implemented a chatroom for all buyers and sellers, so that they could communicate, exchange information in the chatroom.
+In this project we developed an real-time trading platform, which offer users to either buy or sell items via the our platform. 
+Basically users on the platform will be seperate into three different roles, buyer, seller and admin. There will be auctions rooms where buyers and sellers could trade merchandise simultaneously. Admin are priviledge users that do not participate the auction, but manage the auction system. Admins are allowed to modify settings of the auction room, controlling the number of bidders and the amount of bidding price allowed. 
+Furthermore, we also implemented a chatroom for all buyers and sellers using socketIO, so that they could communicate, exchange information in the chatroom.
 Last, for security reason all users of the system must register for an acount, users may only enter the platform via their password
 
 For this project we implement most parts that we proposed previously, the only modification is that originally, we would want admins to setup auction room and let seller to send items into the auction room, however this may only increase abundance of tedious error checking implementation, thus we modify the auction room to be created when item is added by seller then assigning rooms to admin.
@@ -22,7 +22,7 @@ buyer/seller.html
 
 The buyer and seller page are similar in implementation, the buyer/seller page can be considered our most interesting web page. In this page we've constructed a combined interface, allowing users to observe both situations of the auction rooms and the chat room. 
 Users can easy read chats from the chat room and see the current bidding situation in each auction room. Buyers can easily enter the auction room to give a new bid for mechandise, also all user can be able to know who are the contestants bidding the same item.
-Furthermore, our interface is implemented in realtime, so users wouldn't have to reload the webpage to see most recent chatroom and auction room status.
+Furthermore, our interface is implemented in real-time, so users wouldn't have to reload the webpage to see most recent chatroom and auction room status.
 This page includes most implementation contaion most of the SQL codes to retrieve each entity's information.
 
 admin.html
