@@ -169,7 +169,7 @@ def buyerMain():
     		g.conn.execute("UPDATE buyer set money ="+str(bMoney-current_bidding)+" WHERE bid="+str(cbid))
     for d in cursor:
     	arid = d['arid']
-    	g.conn.execute("UPDATE auctionroom set duration_to = timestamp '9999-01-01 00:00:00' where arid="+str(arid))
+    	g.conn.execute("UPDATE auctionroom set duration_to = timestamp '9999-01-01 00:00:00', duration_from =  timestamp '9999-01-01 00:00:00' where arid="+str(arid))
 
 
     return render_template("buyer.html", username = session['username'],  money = session['money'],items=newcursor, auctionrooms=cursor, auctionroomList=auctionroomsPPList)
@@ -210,7 +210,7 @@ def sellerMain():
     		g.conn.execute("UPDATE buyer set money ="+str(bMoney-current_bidding)+" WHERE bid="+str(cbid))
     for d in cursor:
     	arid = d['arid']
-    	g.conn.execute("UPDATE auctionroom set duration_to = timestamp '1970-01-01 00:00:00' where arid="+str(arid))
+    	g.conn.execute("UPDATE auctionroom set duration_to = timestamp '9999-01-01 00:00:00', duration_from = timestamp '9999-01-01 00:00:00' where arid="+str(arid))
 
 
     return render_template("seller.html", username = session['username'], money = session['money'], items=newcursor, auctionrooms=cursor,auctionPeopleCount=peoplecursor,auctionroomList=auctionroomsPPList)
@@ -300,43 +300,46 @@ def do_login():
   id = request.form['id']
   password = request.form['password']
   type = request.form['type']
+  try:
+  	i = int(id)
+	if type == "buyer":
+	    cursor = g.conn.execute("SELECT count(*) FROM Buyer Where bid='"+id+"' And password='"+password+"'")
+	    count =  cursor.scalar()
+	    if count != 0:
+	      cursor = g.conn.execute("SELECT * FROM Buyer Where bid='"+id+"' And password='"+password+"'")
+	      session['logged_in'] = True
+	      session['role'] = "buyer"
+	      session['id'] = id
 
-  if type == "buyer":
-    cursor = g.conn.execute("SELECT count(*) FROM Buyer Where bid='"+id+"' And password='"+password+"'")
-    count =  cursor.scalar()
-    if count != 0:
-      cursor = g.conn.execute("SELECT * FROM Buyer Where bid='"+id+"' And password='"+password+"'")
-      session['logged_in'] = True
-      session['role'] = "buyer"
-      session['id'] = id
+	      nameCursor = g.conn.execute("SELECT name FROM Buyer Where bid='"+id+"' And password='"+password+"'")    
+	      for name in nameCursor:
+	        session['username'] = name['name']
+	      for result in cursor:
+	        session['money'] = result['money']
+	      cursor.close()
+	    else:
+	      flash('wrong password!')
 
-      nameCursor = g.conn.execute("SELECT name FROM Buyer Where bid='"+id+"' And password='"+password+"'")    
-      for name in nameCursor:
-        session['username'] = name['name']
-      for result in cursor:
-        session['money'] = result['money']
-      cursor.close()
-    else:
-      flash('wrong password!')
+	elif type == "seller":
+	    cursor = g.conn.execute("SELECT count(*) FROM Seller Where sid='"+id+"' And password='"+password+"'")
+	    count =  cursor.scalar()
+	    if count != 0:
+	      cursor = g.conn.execute("SELECT * FROM Seller Where sid='"+id+"' And password='"+password+"'")
+	      session['logged_in'] = True
+	      session['role'] = "seller"
+	      session['id'] = id
+	      nameCursor = g.conn.execute("SELECT name FROM Seller Where sid='"+id+"' And password='"+password+"'")
+	      for name in nameCursor:
+	        session['username'] = name['name']
+	      for result in cursor:
+	        session['money'] = result['money']
+	      cursor.close()
 
-  elif type == "seller":
-    cursor = g.conn.execute("SELECT count(*) FROM Seller Where sid='"+id+"' And password='"+password+"'")
-    count =  cursor.scalar()
-    if count != 0:
-      cursor = g.conn.execute("SELECT * FROM Seller Where sid='"+id+"' And password='"+password+"'")
-      session['logged_in'] = True
-      session['role'] = "seller"
-      session['id'] = id
-      nameCursor = g.conn.execute("SELECT name FROM Seller Where sid='"+id+"' And password='"+password+"'")
-      for name in nameCursor:
-        session['username'] = name['name']
-      for result in cursor:
-        session['money'] = result['money']
-      cursor.close()
-
-    else:
-      	flash('wrong password!')
-  return index()
+	    else:
+	      	flash('wrong password!')
+	return index()
+  except ValueError:
+    return index()
 
 
 @app.route('/additem', methods=['POST'])
@@ -348,17 +351,47 @@ def addItem():
   durationFrom = request.form['item-du-from']
   durationTo = request.form['item-du-to']
 
-  #inputformat 'm(m)/d(d)/yyyy hhmm00'
-  date = str(now.month) + "/" + str(now.day) + "/" + str(now.year) + " "
-  #Use newiid for new iid number and new arid number
-  newiid = g.conn.execute("SELECT MAX(iid) FROM item").scalar() + 1
+  error = False
+  if len(durationFrom) != 4 and len(durationTo) != 4:
+  	error = True
 
-  aid = g.conn.execute("SELECT aid FROM auctionroom WHERE arid = " + str(newiid % 10)).scalar()
-  ##create auction room add to item table
-  g.conn.execute("INSERT INTO auctionroom VALUES (" + str(newiid) + ",'" + itemCategory + "', '" + date + durationFrom + "00', '" + date + durationTo + "00', " + str(aid) + ")")
-  g.conn.execute("INSERT INTO item VALUES (" + str(newiid) + ",'" + sid + "','" + itemName + "','" + itemCategory + "',"  + itemPrice + "," + itemPrice + "," + str(newiid) + ", 0 )")
-  print "Auction Room", newiid, "created item", itemName, "added"
-  return index()
+  firstPartFrom = durationFrom[:2]
+  secondPartFrom = durationFrom[2:4]
+  firstPartTo = durationTo[:2]
+  secondPartTo = durationTo[2:4]
+
+  try:
+  	fPF = int(firstPartFrom)
+  	sPF = int(secondPartFrom)
+  	fPT = int(firstPartTo)
+  	sPT = int(secondPartTo)
+
+  	if firstPartFrom >= 0 and firstPartTo <= 23 and secondPartFrom >= 0 and secondPartTo <=23:
+		print "good"
+	else:
+  		error = True
+  except ValueError:
+  	return render_template("error.html")
+
+  if error == True:
+    return render_template("error.html")
+
+
+  try:
+  	i = int(itemPrice)
+	#inputformat 'm(m)/d(d)/yyyy hhmm00'
+	date = str(now.month) + "/" + str(now.day) + "/" + str(now.year) + " "
+	#Use newiid for new iid number and new arid number
+	newiid = g.conn.execute("SELECT MAX(iid) FROM item").scalar() + 1
+	#print str(date) +" " + durationFrom +" " + du
+	aid = g.conn.execute("SELECT aid FROM auctionroom WHERE arid = " + str(newiid % 10+1)).scalar()
+	##create auction room add to item table
+	g.conn.execute("INSERT INTO auctionroom VALUES (" + str(newiid) + ",'" + itemCategory + "', '" + date + durationFrom + "00', '" + date + durationTo + "00', " + str(aid) + ")")
+	g.conn.execute("INSERT INTO item VALUES (" + str(newiid) + ",'" + sid + "','" + itemName + "','" + itemCategory + "',"  + itemPrice + "," + itemPrice + "," + str(newiid) + ", 0 )")
+	print "Auction Room", newiid, "created item", itemName, "added"
+	return index()
+  except ValueError:
+    return render_template("error.html")
 
 
 #### Operations for admin page

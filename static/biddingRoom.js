@@ -27,7 +27,7 @@ function addMessage(tag,id,msg){
 		$("#messageBoard").append( "<div class='row message-bubble'><p class='text-muted'>" +name+" : </p><p>"+msg+"</p></div>" );
 		$("#mes" ).val("")
 	} else if(tag=="<bid>"){
-		$("#currentPP").text("Current People: ");
+		$("#currentPP").text("Current Bidder: ");
 		for(var i =0 ; i < id.length ; i++){
 			$("#currentPP").append(id[i] +" ");
 		}	
@@ -39,25 +39,31 @@ function addMessage(tag,id,msg){
 function bidding(){
 	if($("#role").text() != "seller"){
 		var price = $("#item-price").val();
-		var currentRoom = document.URL.split("biddingRoom/")[1];
-		socket.send("<bidMoney> " + price+" " + currentRoom);
-		$('#addBid').modal('hide');
+		if(price === parseInt(price, 10)){
+			var currentRoom = document.URL.split("biddingRoom/")[1];
+			socket.send("<bidMoney> " + price+" " + currentRoom);
+			$('#addBid').modal('hide');
 
-		var currentRoom = document.URL.split("biddingRoom/")[1];
-		var d = $('#bidPriceForm').serializeArray();
-		d.push({name: 'room', value: currentRoom});
-		d.push({name: 'cbid', value: $('#id').text()})
-		$.ajax({
-	        url: '/bid',
-	        data: d,
-	        type: 'POST',
-	        success: function(response) {
-	            //console.log(response);
-	        },
-	        error: function(error) {
-	            //console.log(error);
-	        }
-	    });
+			var currentRoom = document.URL.split("biddingRoom/")[1];
+			var d = $('#bidPriceForm').serializeArray();
+			d.push({name: 'room', value: currentRoom});
+			d.push({name: 'cbid', value: $('#id').text()})
+			$.ajax({
+		        url: '/bid',
+		        data: d,
+		        type: 'POST',
+		        success: function(response) {
+		            //console.log(response);
+		        },
+		        error: function(error) {
+		            //console.log(error);
+		        }
+		    });		
+		}
+		else{
+		    alert("price is not an integer")
+		}
+		
 	} else{
 		alert("Seller is not allowed bidding");
 	}
@@ -75,16 +81,20 @@ $(document).ready(function() {
 	socket.on('message', function(msg) {
 		var tag = msg.split(" ")[0];
 		if(tag == "<bid>"){
-			var roomNumber = msg.split(" ")[1];
+			var maxPP =  msg.split(" ")[1];
+			var roomNumber = msg.split(" ")[2];
 			var id = [];
 			if(roomNumber == currentRoom){
-				for(var i = 2 ; i < msg.split(" ").length ; i++){
+				for(var i = 3 ; i < msg.split(" ").length ; i++){
 					id.push(msg.split(" ")[i]);
 				}
 				addMessage(tag,id,"");
 				console.log('Received message');
 				numberOfPeople = id.length-1;
-
+				if(numberOfPeople > maxPP){
+					alert("Too many people");
+					window.location = "http://" + document.URL.split("http://")[1].split("/")[0]
+				}
 				//send the length of room
 				socket.send("<mainPagePP> " + numberOfPeople+" " + currentRoom);
 			}

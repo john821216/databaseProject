@@ -51,10 +51,15 @@ def handleMessage(msg):
 				print "Buyer already in auctionRoom", id
 			cursor.close()
 
-		msg ="<bid> " + roomNumber +" "
-		for i in range(len(list)):
-			msg = msg + list[i] +" "
-		send(msg, broadcast=True)
+		g.conn = engine.connect()
+		cursor = g.conn.execute("SELECT * from applysetting ASP,setting S where S.sid = ASP.sid AND arid="+roomNumber)
+		for d in cursor:
+			print d['max_people']
+			max_people = d['max_people']
+			msg ="<bid> " + str(max_people) +" "+ str(roomNumber) +" "
+			for i in range(len(list)):
+				msg = msg + list[i] +" "
+			send(msg, broadcast=True)
 
 	elif msg.split(" ")[0] == "<bidLeave>":
 		roomNumber = str(msg.split(" ")[3])
@@ -62,10 +67,16 @@ def handleMessage(msg):
 		role = str(msg.split(" ")[1])
 		print msg
 		if role != "seller":
-			dict[roomNumber].remove(id)
-			msg ="<bid> " + roomNumber +" "
-			for i in range(len(dict[roomNumber])):
-				msg = msg + dict[roomNumber][i] +" "
+			g.conn = engine.connect()
+			cursor = g.conn.execute("SELECT * from applysetting ASP,setting S where S.sid = ASP.sid AND arid="+roomNumber)
+			for d in cursor:
+				print d['max_people']
+				max_people = d['max_people']
+				dict[roomNumber].remove(id)
+				msg ="<bid> " + str(max_people) +" "+ str(roomNumber) +" "
+				#msg ="<bid> " + roomNumber +" "
+				for i in range(len(dict[roomNumber])):
+					msg = msg + dict[roomNumber][i] +" "
 
 		#insert into table
 		g.conn = engine.connect()
