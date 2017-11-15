@@ -365,8 +365,8 @@ def addItem():
   	sPF = int(secondPartFrom)
   	fPT = int(firstPartTo)
   	sPT = int(secondPartTo)
-
-  	if firstPartFrom >= 0 and firstPartTo <= 23 and secondPartFrom >= 0 and secondPartTo <=23:
+  	print str(fPF) +" " + str(sPF) + " "+ str(fPT) +" "+str(sPT)
+  	if fPF >= 0 and fPT <= 23 and sPF >= 0 and sPT <=60:
 		print "good"
 	else:
   		error = True
