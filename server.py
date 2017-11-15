@@ -384,10 +384,13 @@ def addItem():
 	#Use newiid for new iid number and new arid number
 	newiid = g.conn.execute("SELECT MAX(iid) FROM item").scalar() + 1
 	#print str(date) +" " + durationFrom +" " + du
-	aid = g.conn.execute("SELECT aid FROM auctionroom WHERE arid = " + str(newiid % 10+1)).scalar()
+  #setting default admin and default auctionr room setting
+	aid = g.conn.execute("SELECT aid FROM auctionroom WHERE arid = " + str(newiid % 10 + 1)).scalar() ##look up for admin of 1-10
+  sid = g.conn.execute("SELECT sid FROM applysetting WHERE arid = " + str(newiid % 10 + 1)).scalar() ## look up for applied setting 1-10
 	##create auction room add to item table
 	g.conn.execute("INSERT INTO auctionroom VALUES (" + str(newiid) + ",'" + itemCategory + "', '" + date + durationFrom + "00', '" + date + durationTo + "00', " + str(aid) + ")")
-	g.conn.execute("INSERT INTO item VALUES (" + str(newiid) + ",'" + sid + "','" + itemName + "','" + itemCategory + "',"  + itemPrice + "," + itemPrice + "," + str(newiid) + ", 0 )")
+	g.conn.execute("INSERT INTO applysetting (sid, arid) VALUES (" + str(sid) + ",'" + str(newiid) + ")")
+  g.conn.execute("INSERT INTO item VALUES (" + str(newiid) + ",'" + sid + "','" + itemName + "','" + itemCategory + "',"  + itemPrice + "," + itemPrice + "," + str(newiid) + ", 0 )")
 	print "Auction Room", newiid, "created item", itemName, "added"
 	return index()
   except ValueError:
