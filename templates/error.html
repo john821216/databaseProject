@@ -4,7 +4,7 @@
 <script>
 (function() {
 	alert("Invalid Value");
-	window.location = "http://localhost:8111" 
+	window.location = "http://" + document.URL.split("http://")[1].split("/")[0]
 })();
 
 </script>
