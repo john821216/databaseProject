@@ -39,7 +39,7 @@ function addMessage(tag,id,msg){
 function bidding(){
 	if($("#role").text() != "seller"){
 		var price = $("#item-price").val();
-		if(price === parseInt(price, 10)){
+		if(parseInt(price) === parseInt(price, 10)){
 			var currentRoom = document.URL.split("biddingRoom/")[1];
 			socket.send("<bidMoney> " + price+" " + currentRoom);
 			$('#addBid').modal('hide');
