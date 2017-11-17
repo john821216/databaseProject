@@ -35,7 +35,7 @@ def handleMessage(msg):
 		#insert into table
 		g.conn = engine.connect()
 		if role == "seller":
-			cursor = g.conn.execute("SELECT count(*) FROM participateas WHERE arid = "+ roomNumber +"And sid =" + id)
+			cursor = g.conn.execute("SELECT count(*) FROM participateas WHERE arid = "+ roomNumber +" AND sid = " + id)
 			if cursor.scalar() == 0:
 				g.conn.execute("INSERT INTO participateas VALUES ("+roomNumber+"," + id+")")
 				print "Seller add successfully"
@@ -43,7 +43,7 @@ def handleMessage(msg):
 				print "Seller already in auctionRoom", id
 				cursor.close()
 		elif role == "buyer":
-			cursor = g.conn.execute("SELECT count(*) FROM participateab WHERE arid = "+ roomNumber +"And bid =" + id)
+			cursor = g.conn.execute("SELECT count(*) FROM participateab WHERE arid = "+ roomNumber +" AND bid = " + id)
 			if cursor.scalar() == 0:
 				g.conn.execute("INSERT INTO participateab VALUES ("+roomNumber+"," + id+")")
 				print "Buyer add successfully"
@@ -52,7 +52,7 @@ def handleMessage(msg):
 			cursor.close()
 
 		g.conn = engine.connect()
-		cursor = g.conn.execute("SELECT * from applysetting ASP,setting S where S.sid = ASP.sid AND arid="+roomNumber)
+		cursor = g.conn.execute("SELECT * from applysetting ASP,setting S WHERE S.sid = ASP.sid AND arid = "+roomNumber)
 		for d in cursor:
 			print d['max_people']
 			max_people = d['max_people']
@@ -73,24 +73,24 @@ def handleMessage(msg):
 		#insert into table
 		g.conn = engine.connect()
 		if role == "seller":
-			cursor = g.conn.execute("SELECT count(*) FROM participateas WHERE arid = "+ roomNumber +"And sid =" + id)
+			cursor = g.conn.execute("SELECT count(*) FROM participateas WHERE arid = "+ roomNumber +" AND sid = " + id)
 			if cursor.scalar() != 0:
-				g.conn.execute("DELETE FROM participateas WHERE arid = "+ roomNumber +"And sid =" + id)
+				g.conn.execute("DELETE FROM participateas WHERE arid = "+ roomNumber +" AND sid = " + id)
 				print "Seller delete successfully"
 			else :
 				print "Seller already been deleted in auctionRoom", id
 			cursor.close()
 		elif role == "buyer":
-			cursor = g.conn.execute("SELECT count(*) FROM participateab WHERE arid = "+ roomNumber +"And bid =" + id)
+			cursor = g.conn.execute("SELECT count(*) FROM participateab WHERE arid = "+ roomNumber +" AND bid = " + id)
 			if cursor.scalar() != 0:
-				g.conn.execute("DELETE FROM participateab WHERE arid = "+ roomNumber +"And bid =" + id)
+				g.conn.execute("DELETE FROM participateab WHERE arid = "+ roomNumber +" AND bid = " + id)
 				print "Buyer delete successfully"
 			else :
 				print "Buyer already been deleted in auctionRoom", id
 			cursor.close()
 		if role != "seller":
 			g.conn = engine.connect()
-			cursor = g.conn.execute("SELECT * from applysetting ASP,setting S where S.sid = ASP.sid AND arid="+roomNumber)
+			cursor = g.conn.execute("SELECT * from applysetting ASP,setting S WHERE S.sid = ASP.sid AND arid = "+ roomNumber)
 			for d in cursor:
 				print d['max_people']
 				max_people = d['max_people']

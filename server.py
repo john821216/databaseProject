@@ -389,11 +389,11 @@ def addItem():
 
     #setting default admin and default auctionroom setting
     aid = g.conn.execute("SELECT aid FROM auctionroom WHERE arid = " + str(newiid % 10 + 1)).scalar() 
-    sid = g.conn.execute("SELECT sid FROM applysetting WHERE arid = " + str(newiid % 10 + 1)).scalar() 
+    setid = g.conn.execute("SELECT sid FROM applysetting WHERE arid = " + str(newiid % 10 + 1)).scalar() 
 	
     ##create auction room add to item table
     g.conn.execute("INSERT INTO auctionroom VALUES (" + str(newiid) + ",'" + itemCategory + "', '" + date + durationFrom + "00', '" + date + durationTo + "00', " + str(aid) + ")")
-    g.conn.execute("INSERT INTO applysetting (sid, arid) VALUES (" + str(sid) + "," + str(newiid) + ")")
+    g.conn.execute("INSERT INTO applysetting (sid, arid) VALUES (" + str(setid) + "," + str(newiid) + ")")
     g.conn.execute("INSERT INTO item VALUES (" + str(newiid) + ",'" + sid + "','" + itemName + "','" + itemCategory + "',"  + itemPrice + "," + itemPrice + "," + str(newiid) + ", 0 )")
     print "Auction Room", newiid, "created item", itemName, "added"
     return index()
@@ -448,8 +448,12 @@ def deleteSet():
     i = int (sid)
     
     ##delete setting if it belongs to current admin
-    g.conn.execute("DELETE FROM setting WHERE sid = " + sid + " AND aid = " + aid)
-    print "condition check setting delete"
+    setting = g.conn.execute("SELECT COUNT(*) FROM applysetting WHERE sid = " + sid).scalar
+    if setting == 0:
+      print "checked no room apply, delete setting"
+      g.conn.execute("DELETE FROM setting WHERE sid = " + sid + " AND aid = " + aid)
+    else:
+      print "condition check setting not deleted"
     return index()
   except ValueError:
     return render_template("error.html")
