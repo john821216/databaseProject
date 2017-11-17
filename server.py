@@ -388,8 +388,11 @@ def addItem():
     newiid = g.conn.execute("SELECT MAX(iid) FROM item").scalar() + 1
 
     #setting default admin and default auctionroom setting
-    aid = g.conn.execute("SELECT aid FROM auctionroom WHERE arid = " + str(newiid % 10 + 1)).scalar() 
-    setid = g.conn.execute("SELECT sid FROM applysetting WHERE arid = " + str(newiid % 10 + 1)).scalar() 
+    lookup = newiid % 10
+    if lookup == 0 :
+      lookup = 10
+    aid = g.conn.execute("SELECT aid FROM auctionroom WHERE arid = " + str(newiid % 10 )).scalar() 
+    setid = g.conn.execute("SELECT sid FROM applysetting WHERE arid = " + str(newiid % 10 )).scalar() 
 	
     ##create auction room add to item table
     g.conn.execute("INSERT INTO auctionroom VALUES (" + str(newiid) + ",'" + itemCategory + "', '" + date + durationFrom + "00', '" + date + durationTo + "00', " + str(aid) + ")")
