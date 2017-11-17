@@ -455,7 +455,7 @@ def deleteSet():
     i = int (sid)
     
     ##delete setting if it belongs to current admin
-    setting = g.conn.execute("SELECT COUNT(*) FROM applysetting WHERE sid = " + sid).scalar
+    setting = g.conn.execute("SELECT COUNT(*) FROM applysetting WHERE sid = " + sid).scalar()
     print setting, sid
     if setting == 0:
       print "checked no room apply, delete setting"
