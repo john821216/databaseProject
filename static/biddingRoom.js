@@ -9,10 +9,11 @@ $('#bid').on('show.bs.modal', function (event) {
 var socket;
 var numberOfPeople;
 function leave(){
+	var currentRoom = document.URL.split("biddingRoom/")[1];
 	if($('#role').text() != 'seller'){
-		var currentRoom = document.URL.split("biddingRoom/")[1];
 		socket.send("<mainPagePP> " + (numberOfPeople-1)+" " + currentRoom);
 	}
+
 	socket.send("<bidLeave> " +$('#role').text() +" " +$('#id').text()+" " + currentRoom);
 	var millisecondsToWait = 1500;
 	setTimeout(function() {
