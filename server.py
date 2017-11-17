@@ -230,7 +230,10 @@ def adminMain():
 def biddingRoom(id):
 	cursor = g.conn.execute("SELECT * FROM auctionroom WHERE arid='"+str(id)+"'").fetchall()
 	newcursor = g.conn.execute("SELECT * FROM item WHERE arid='"+str(id)+"'").fetchall()
-	return render_template("biddingRoom.html", id = session['id'], role = session['role'],username = session['username'], money = session['money'],items=newcursor, auctionrooms=cursor)
+	if session.get('role') == 'buyer':
+		return render_template("biddingRoomBuyer.html", id = session['id'], role = session['role'],username = session['username'], money = session['money'],items=newcursor, auctionrooms=cursor)
+	else:
+		return render_template("biddingRoomSeller.html", id = session['id'], role = session['role'],username = session['username'], money = session['money'],items=newcursor, auctionrooms=cursor)
 
 @app.route('/bid',methods=['POST'] )
 def bidMoney():
