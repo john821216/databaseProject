@@ -405,13 +405,18 @@ def addSet():
   people = request.form['mppl']
   money = request.form['mmoney']
 
-  #Use newsid for new sid number 
-  newsid = g.conn.execute("SELECT MAX(sid) FROM setting").scalar() + 1
+  try:
+    i = int (people)
+    i = int (money)
+    #Use newsid for new sid number 
+    newsid = g.conn.execute("SELECT MAX(sid) FROM setting").scalar() + 1
 
-  
-  g.conn.execute("INSERT INTO setting VALUES (" + str(newsid) + "," + aid + "," + people + "," + money + ")")
-  print "New Setting", newsid, "created"
-  return index()
+    
+    g.conn.execute("INSERT INTO setting VALUES (" + str(newsid) + "," + aid + "," + people + "," + money + ")")
+    print "New Setting", newsid, "created"
+    return index()
+  except ValueError:
+    return render_template("error.html")
 
 @app.route('/modset', methods=['POST'])
 def updateSet():
@@ -420,22 +425,31 @@ def updateSet():
   people = request.form['mppl']
   money = request.form['mmoney']
 
-  
-  ##update setting if it belongs to current admin
-  g.conn.execute("UPDATE setting SET max_people = " + people + ", max_money = " + money + " WHERE sid = " + sid + " AND aid = " + aid)
-  print "condition check setting alter"
-  return index()
+  try:
+    i = int (sid)
+    i = int (people)
+    i = int (money)
+    ##update setting if it belongs to current admin
+    g.conn.execute("UPDATE setting SET max_people = " + people + ", max_money = " + money + " WHERE sid = " + sid + " AND aid = " + aid)
+    print "condition check setting alter"
+    return index()
+  except ValueError:
+    return render_template("error.html")
 
 @app.route('/delset', methods=['POST'])
 def deleteSet():
   aid = session.get('id')
   sid = request.form['set_id']
-  
-  ##delete setting if it belongs to current admin
-  g.conn.execute("DELETE FROM setting WHERE sid = " + sid + " AND aid = " + aid)
-  print "condition check setting delete"
-  return index()
 
+  try:
+    i = int (sid)
+    
+    ##delete setting if it belongs to current admin
+    g.conn.execute("DELETE FROM setting WHERE sid = " + sid + " AND aid = " + aid)
+    print "condition check setting delete"
+    return index()
+  except ValueError:
+    return render_template("error.html")
 
 @app.route('/chageset', methods=['POST'])
 def changeSet():
@@ -443,11 +457,16 @@ def changeSet():
   arid = request.form['room_id']
   sid = request.form['set_id']
 
-  
-  ##check both setting and auction room must belong to current admin
-  g.conn.execute("UPDATE applysetting SET sid = " + sid + "WHERE arid = " + arid + " AND " + sid + " IN (SELECT sid FROM setting WHERE aid = " + aid +") AND " + arid + " IN (SELECT arid FROM auctionroom WHERE aid = " + aid + ")")
-  print "condition check for change room setting"
-  return index()
+  try:
+    i = int(arid);
+    i = int(sid);
+    
+    ##check both setting and auction room must belong to current admin
+    g.conn.execute("UPDATE applysetting SET sid = " + sid + "WHERE arid = " + arid + " AND " + sid + " IN (SELECT sid FROM setting WHERE aid = " + aid +") AND " + arid + " IN (SELECT arid FROM auctionroom WHERE aid = " + aid + ")")
+    print "condition check for change room setting"
+    return index()
+  except ValueError:
+    return render_template("error.html")
 ####
 
 @app.route('/adminlogin', methods=['POST'])

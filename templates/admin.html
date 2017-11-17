@@ -14,6 +14,9 @@
         <a class="navbar-brand" href="#">
             Hello Administrator <span id="username">{{ username }}! </span> 
         </a>
+        <form action="/logout" method="post">
+          <button name="logout" style="float:right; value="logout" class="btn btn-primary">Logout</button> 
+        </form>
     </nav>
     <div id="container" style="width:100%;">   
         <div class="text-left well" ><b> My Settings</b> </div>
