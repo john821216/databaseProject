@@ -20,17 +20,17 @@ def handleMessage(msg):
 		roomNumber = str(msg.split(" ")[3])
 		id = str(msg.split(" ")[2])
 		role = str(msg.split(" ")[1])
-		list=[]
-		if roomNumber not in dict:
-			if role != "seller":
-				list.append(id)
-			dict[roomNumber] = list
-		else:
-			list = dict[roomNumber]
-			if id not in dict[roomNumber]:
-				if role != "seller":
-					list.append(id)
-				dict[roomNumber] = list	
+		#list=[]
+		#if roomNumber not in dict:
+		#	if role != "seller":
+		#		list.append(id)
+		#	dict[roomNumber] = list
+		#else:
+		#	list = dict[roomNumber]
+		#	if id not in dict[roomNumber]:
+		#		if role != "seller":
+		#			list.append(id)
+		#		dict[roomNumber] = list	
 
 		#insert into table
 		g.conn = engine.connect()
@@ -57,26 +57,18 @@ def handleMessage(msg):
 			print d['max_people']
 			max_people = d['max_people']
 			msg ="<bid> " + str(max_people) +" "+ str(roomNumber) +" "
-			for i in range(len(list)):
-				msg = msg + list[i] +" "
+			cursor2 = g.conn.execute("SELECT bid FROM participateab WHERE arid = "+ roomNumber)
+			for c in cursor2:
+				msg = msg + str(c['bid']) +" "
+			#for i in range(len(list)):
+			#	msg = msg + list[i] +" "
 			send(msg, broadcast=True)
 
 	elif msg.split(" ")[0] == "<bidLeave>":
 		roomNumber = str(msg.split(" ")[3])
 		id = str(msg.split(" ")[2])
 		role = str(msg.split(" ")[1])
-		print msg
-		if role != "seller":
-			g.conn = engine.connect()
-			cursor = g.conn.execute("SELECT * from applysetting ASP,setting S where S.sid = ASP.sid AND arid="+roomNumber)
-			for d in cursor:
-				print d['max_people']
-				max_people = d['max_people']
-				dict[roomNumber].remove(id)
-				msg ="<bid> " + str(max_people) +" "+ str(roomNumber) +" "
-				#msg ="<bid> " + roomNumber +" "
-				for i in range(len(dict[roomNumber])):
-					msg = msg + dict[roomNumber][i] +" "
+		#print msg
 
 		#insert into table
 		g.conn = engine.connect()
@@ -96,6 +88,21 @@ def handleMessage(msg):
 			else :
 				print "Buyer already been deleted in auctionRoom", id
 			cursor.close()
+		if role != "seller":
+			g.conn = engine.connect()
+			cursor = g.conn.execute("SELECT * from applysetting ASP,setting S where S.sid = ASP.sid AND arid="+roomNumber)
+			for d in cursor:
+				print d['max_people']
+				max_people = d['max_people']
+				#dict[roomNumber].remove(id)
+				msg ="<bid> " + str(max_people) +" "+ str(roomNumber) +" "
+				#msg ="<bid> " + roomNumber +" "
+				#for i in range(len(dict[roomNumber])):
+				#	msg = msg + dict[roomNumber][i] +" "
+				cursor2 = g.conn.execute("SELECT bid FROM participateab WHERE arid = "+ roomNumber)
+				for c in cursor2:
+					msg = msg + str(c['bid']) +" "
+
 		send(msg, broadcast=True)
 
 

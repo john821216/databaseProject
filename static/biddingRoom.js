@@ -88,15 +88,19 @@ $(document).ready(function() {
 				for(var i = 3 ; i < msg.split(" ").length ; i++){
 					id.push(msg.split(" ")[i]);
 				}
-				addMessage(tag,id,"");
-				console.log('Received message');
-				numberOfPeople = id.length-1;
-				if(numberOfPeople > maxPP){
+				console.log(id.length-1 +" " + maxPP)
+				if(id.length-1 > maxPP){
+					socket.send("<bidLeave> " +$('#role').text() +" " +$('#id').text()+" " + roomNumber);
 					alert("Too many people");
 					window.location = "http://" + document.URL.split("http://")[1].split("/")[0]
+				} else{
+					addMessage(tag,id,"");
+					console.log('Received message');
+					numberOfPeople = id.length-1;
+
+					//send the length of room
+					socket.send("<mainPagePP> " + numberOfPeople+" " + currentRoom);
 				}
-				//send the length of room
-				socket.send("<mainPagePP> " + numberOfPeople+" " + currentRoom);
 			}
 			console.log(id.length);
 
