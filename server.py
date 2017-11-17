@@ -390,7 +390,7 @@ def addItem():
 	
     ##create auction room add to item table
     g.conn.execute("INSERT INTO auctionroom VALUES (" + str(newiid) + ",'" + itemCategory + "', '" + date + durationFrom + "00', '" + date + durationTo + "00', " + str(aid) + ")")
-    g.conn.execute("INSERT INTO applysetting (sid, arid) VALUES (" + str(sid) + ",'" + str(newiid) + ")")
+    g.conn.execute("INSERT INTO applysetting (sid, arid) VALUES (" + str(sid) + "," + str(newiid) + ")")
     g.conn.execute("INSERT INTO item VALUES (" + str(newiid) + ",'" + sid + "','" + itemName + "','" + itemCategory + "',"  + itemPrice + "," + itemPrice + "," + str(newiid) + ", 0 )")
     print "Auction Room", newiid, "created item", itemName, "added"
     return index()
