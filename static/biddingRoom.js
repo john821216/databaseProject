@@ -41,25 +41,29 @@ function bidding(){
 	if($("#role").text() != "seller"){
 		var price = $("#item-price").val();
 		if(parseInt(price) === parseInt(price, 10)){
-			var currentRoom = document.URL.split("biddingRoom/")[1];
-			socket.send("<bidMoney> " + price+" " + currentRoom);
-			$('#addBid').modal('hide');
+			if(price > $("#maxMoney").text()){
+				alert("Invalid value");
+			} else{
+				var currentRoom = document.URL.split("biddingRoom/")[1];
+				socket.send("<bidMoney> " + price+" " + currentRoom);
+				$('#addBid').modal('hide');
 
-			var currentRoom = document.URL.split("biddingRoom/")[1];
-			var d = $('#bidPriceForm').serializeArray();
-			d.push({name: 'room', value: currentRoom});
-			d.push({name: 'cbid', value: $('#id').text()})
-			$.ajax({
-		        url: '/bid',
-		        data: d,
-		        type: 'POST',
-		        success: function(response) {
-		            //console.log(response);
-		        },
-		        error: function(error) {
-		            //console.log(error);
-		        }
-		    });		
+				var currentRoom = document.URL.split("biddingRoom/")[1];
+				var d = $('#bidPriceForm').serializeArray();
+				d.push({name: 'room', value: currentRoom});
+				d.push({name: 'cbid', value: $('#id').text()})
+				$.ajax({
+			        url: '/bid',
+			        data: d,
+			        type: 'POST',
+			        success: function(response) {
+			            //console.log(response);
+			        },
+			        error: function(error) {
+			            //console.log(error);
+			        }
+			    });	
+		    }	
 		}
 		else{
 		    alert("price is not an integer")

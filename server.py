@@ -228,11 +228,15 @@ def adminMain():
 
 @app.route('/biddingRoom/<int:id>')
 def biddingRoom(id):
-	cursor = g.conn.execute("SELECT * FROM auctionroom WHERE arid='"+str(id)+"'").fetchall()
-	newcursor = g.conn.execute("SELECT * FROM item WHERE arid='"+str(id)+"'").fetchall()
-	if session.get('role') == 'buyer':
-		return render_template("biddingRoomBuyer.html", id = session['id'], role = session['role'],username = session['username'], money = session['money'],items=newcursor, auctionrooms=cursor)
-	else:
+  cursor = g.conn.execute("SELECT * FROM auctionroom WHERE arid='"+str(id)+"'").fetchall()
+  newcursor = g.conn.execute("SELECT * FROM item WHERE arid='"+str(id)+"'").fetchall()
+  newcursor2 = g.conn.execute("SELECT max_money FROM applySetting a,setting s where a.sid = s.sid AND arid="+str(id)).fetchall()
+  m =0
+  for d in newcursor2:
+    m = d['max_money']
+  if session.get('role') == 'buyer':
+		return render_template("biddingRoomBuyer.html", id = session['id'], role = session['role'],username = session['username'], money = session['money'],items=newcursor, auctionrooms=cursor,max_money=m)
+  else:
 		return render_template("biddingRoomSeller.html", id = session['id'], role = session['role'],username = session['username'], money = session['money'],items=newcursor, auctionrooms=cursor)
 
 @app.route('/bid',methods=['POST'] )
