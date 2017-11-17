@@ -501,21 +501,25 @@ def ad_login():
 
 @app.route('/register',methods=['POST'])
 def register():
-  id = request.form['id']
+  #id = request.form['id']
   username = request.form['username']
   password = request.form['password']
   type = request.form['type']
   if type == "buyer":
-    cursor = g.conn.execute("INSERT INTO Buyer(bid, name, password, money) VALUES ('"+id+ "','" + username +"','" + password+"',10000)")
+    newbid = g.conn.execute("SELECT MAX(bid) FROM Buyer").scalar() + 1
+    cursor = g.conn.execute("INSERT INTO Buyer(bid, name, password, money) VALUES ('"+str(newbid)+ "','" + username +"','" + password+"',10000)")
   elif type == "seller":
-    cursor = g.conn.execute("INSERT INTO Seller(sid, name, password, money) VALUES ('"+id+ "','" + username +"','" + password+"',10000)")
+    newsid = g.conn.execute("SELECT MAX(sid) FROM Seller").scalar() + 1
+    cursor = g.conn.execute("INSERT INTO Seller(sid, name, password, money) VALUES ('"+str(newsid)+ "','" + username +"','" + password+"',10000)")
   cursor.close()
 
   return index()
 
 @app.route('/signup')
 def signup():
-  return render_template("signup.html")
+  newbid = g.conn.execute("SELECT MAX(bid) FROM Buyer").scalar() + 1
+  newsid = g.conn.execute("SELECT MAX(sid) FROM Seller").scalar() + 1
+  return render_template("signup.html", nbid = newbid, nsid = newsid);
 
 @app.route('/adminSignIn')
 def signin():
