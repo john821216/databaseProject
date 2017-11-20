@@ -25,8 +25,8 @@ from flask_socketio import SocketIO, send
 from flask_basic_roles import BasicRoleAuth
 
 #define easier function call for date time
-import datetime
-now = datetime.datetime.now()
+#import datetime
+#now = datetime.datetime.now()
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -141,7 +141,7 @@ def buyerMain():
     cursor = g.conn.execute("SELECT * FROM auctionroom").fetchall()
     numberOfAuctionRoom = g.conn.execute("SELECT count(*) FROM auctionRoom")
     lenOfAuctionRoom = numberOfAuctionRoom.scalar()
-    newcursor = g.conn.execute("SELECT * FROM item I, applysetting APS, setting S, auctionroom A WHERE I.arid>=1 AND I.arid<='" + str(lenOfAuctionRoom)+"' AND I.arid = APS.arid AND APS.sid = S.sid AND A.arid = I.arid AND A.duration_to >= LOCALTIMESTAMP AND A.duration_from <= LOCALTIMESTAMP ORDER BY (I.iid)").fetchall()
+    newcursor = g.conn.execute("SELECT * FROM item I, applysetting APS, setting S, auctionroom A WHERE I.arid>=1 AND I.arid<='" + str(lenOfAuctionRoom)+"' AND I.arid = APS.arid AND APS.sid = S.sid AND A.arid = I.arid AND A.duration_to >= LOCALTIMESTAMP - time '05:00' AND A.duration_from <= LOCALTIMESTAMP - time '05:00' ORDER BY (I.iid)").fetchall()
     peoplecursor = g.conn.execute("SELECT arid, count(*) FROM participateab GROUP BY arid ORDER BY (arid)")
     auctionroomsPPList=[]
     for i in range(lenOfAuctionRoom):
@@ -151,7 +151,7 @@ def buyerMain():
     	print str(a['arid'])+" " + str(a['count'])
     print auctionroomsPPList
     
-    cursor = g.conn.execute("SELECT * FROM auctionroom A, item I where A.duration_to<= LOCALTIMESTAMP AND A.arid = I.arid").fetchall()
+    cursor = g.conn.execute("SELECT * FROM auctionroom A, item I where A.duration_to<= LOCALTIMESTAMP - time '05:00' AND A.arid = I.arid").fetchall()
     for d in cursor:
     	cbid = d['cbid']
     	sid = d['sid']
@@ -182,7 +182,7 @@ def sellerMain():
     cursor = g.conn.execute("SELECT * FROM auctionroom").fetchall()
     numberOfAuctionRoom = g.conn.execute("SELECT count(*) FROM auctionRoom")
     lenOfAuctionRoom = numberOfAuctionRoom.scalar()
-    newcursor = g.conn.execute("SELECT * FROM item I, applysetting APS, setting S, auctionroom A WHERE I.arid>=1 AND I.arid<='" + str(lenOfAuctionRoom)+"' AND I.arid = APS.arid AND APS.sid = S.sid AND A.arid = I.arid AND A.duration_to >= LOCALTIMESTAMP AND A.duration_from <= LOCALTIMESTAMP ORDER BY (I.iid)").fetchall()
+    newcursor = g.conn.execute("SELECT * FROM item I, applysetting APS, setting S, auctionroom A WHERE I.arid>=1 AND I.arid<='" + str(lenOfAuctionRoom)+"' AND I.arid = APS.arid AND APS.sid = S.sid AND A.arid = I.arid AND A.duration_to >= LOCALTIMESTAMP - time '05:00' AND A.duration_from <= LOCALTIMESTAMP - time '05:00' ORDER BY (I.iid)").fetchall()
     peoplecursor = g.conn.execute("SELECT arid, count(*) FROM participateab GROUP BY arid")
     auctionroomsPPList=[]
     for i in range(lenOfAuctionRoom):
@@ -192,7 +192,7 @@ def sellerMain():
     	print str(a['arid']-1)+" " + str(a['count'])
     print auctionroomsPPList
 
-    cursor = g.conn.execute("SELECT * FROM auctionroom A, item I where A.duration_to<= LOCALTIMESTAMP AND A.arid = I.arid").fetchall()
+    cursor = g.conn.execute("SELECT * FROM auctionroom A, item I where A.duration_to<= LOCALTIMESTAMP - time '05:00' AND A.arid = I.arid").fetchall()
     for d in cursor:
     	cbid = d['cbid']
     	sid = d['sid']
@@ -387,7 +387,11 @@ def addItem():
   try:
     i = int(itemPrice)
     #inputformat 'm(m)/d(d)/yyyy hhmm00'
-    date = str(now.month) + "/" + str(now.day) + "/" + str(now.year) + " "
+    m = int (g.conn.execute("SELECT EXTRACT (MONTH FROM LOCALTIMESTAMP - time '05:00')").scalar())
+    d = int (g.conn.execute("SELECT EXTRACT (DAY FROM LOCALTIMESTAMP - time '05:00')").scalar())
+    y = int (g.conn.execute("SELECT EXTRACT (YEAR FROM LOCALTIMESTAMP - time '05:00')").scalar())
+
+    date = str(m) + "/" + str(d) + "/" + str(y) + " "
     #Use newiid for new iid number and new arid number
     newiid = g.conn.execute("SELECT MAX(iid) FROM item").scalar() + 1
 
@@ -395,14 +399,15 @@ def addItem():
     lookup = newiid % 10
     if lookup == 0 :
       lookup = 10
-    aid = g.conn.execute("SELECT aid FROM auctionroom WHERE arid = " + str(newiid % 10 )).scalar() 
-    setid = g.conn.execute("SELECT sid FROM applysetting WHERE arid = " + str(newiid % 10 )).scalar() 
-	
+    
+    aid = g.conn.execute("SELECT aid FROM auctionroom WHERE arid = " + str(lookup)).scalar()
+    setid = g.conn.execute("SELECT sid FROM applysetting WHERE arid = " + str(lookup)).scalar() 
+	 
     ##create auction room add to item table
     g.conn.execute("INSERT INTO auctionroom VALUES (" + str(newiid) + ",'" + itemCategory + "', '" + date + durationFrom + "00', '" + date + durationTo + "00', " + str(aid) + ")")
     g.conn.execute("INSERT INTO applysetting (sid, arid) VALUES (" + str(setid) + "," + str(newiid) + ")")
     g.conn.execute("INSERT INTO item VALUES (" + str(newiid) + ",'" + sid + "','" + itemName + "','" + itemCategory + "',"  + itemPrice + "," + itemPrice + "," + str(newiid) + ", 0 )")
-    print "Auction Room", newiid, "created item", itemName, "added"
+    print "Auction Room", newiid, "created item", itemName, "added" , date
     return index()
   except ValueError:
     return render_template("error.html")
